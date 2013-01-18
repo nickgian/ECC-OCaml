@@ -128,21 +128,55 @@ let main =
   flush stdout;
   let user = Scanf.scanf "%s\n" (fun s -> s) in
   let curve = sec_256_r1 in
+  let curve_size = String.length (Z.to_string curve.a) in
+  let peer = String.make 32 '0' in
+  let peer_key = String.make curve_size '0' in
   let d_size = String.length (Z.to_string (curve.n)) in
   let sk = random_big_int d_size in
-  let pk = multiply_point (curve.g) sk curve in 
-  let _ = match pk with
+  let pk = multiply_point (curve.g) sk curve in
+  let pk_x = match pk with
     | Infinity -> failwith "error"
-    | Point (pk_x, pk_y) -> Printf.printf "<%s,(%s,%s)>\n" user (Z.to_string pk_x) (Z.to_string pk_y)
+    | Point (pk_x, pk_y) -> Z.to_string pk_x
   in
-    Printf.printf "Enter <user,pk> to share key with\n";
-    flush stdout;
-    let peer = Scanf.scanf "%s\n" (fun peer -> peer) in
-    let pk_b = Scanf.scanf "<(%s,%s)>\n" (fun  pk_x pk_y ->
-           (Point (Z.of_string pk_x, Z.of_string pk_y))) 
-     in
-    let _ = match pk with
-      | Infinity -> failwith "error"
-      | Point (pk_x, pk_y) -> Printf.printf "<%s,(%s,%s)>\n" peer (Z.to_string pk_x) (Z.to_string pk_y)
-    in
-      ()
+  let _ = 
+    match (try Some (Unix.openfile "keyagree" [Unix.O_RDWR] 0o640) with Unix.Unix_error (_, _, _) -> None) with
+      | None -> 
+          Unix.mkfifo "keyagree" 0o640;
+          let fd = Unix.openfile "keyagree" [Unix.O_RDWR] 0o640 in
+          let _ =   
+            match Unix.write fd user 0 (String.length user) with
+              | len when len = (String.length user) -> ()
+              | _ -> failwith "Write failed\n"
+          in 
+          let _ = 
+            match Unix.write fd pk_x 0 (String.length pk_x) with
+              | len when len = (String.length pk_x) -> ()
+              | _ -> failwith "Write failed\n"
+          in
+          let rec block () =
+            match Unix.read fd peer 32 0 with
+              | 0 -> Printf.printf "blocked\n" ;block ()
+              | _ -> ()
+          in
+            block ();
+            Printf.printf "unblocked\n";
+          Unix.read fd peer_key (curve_size) 0;
+          ()
+      | Some fd -> 
+          Unix.read fd peer 32 0;
+          Unix.read fd peer_key (curve_size) 0;
+             let _ =   
+            match Unix.write fd user 0 (String.length user) with
+              | len when len = (String.length user) -> ()
+              | _ -> failwith "Write failed\n"
+          in 
+          let _ = 
+            match Unix.write fd pk_x 0 (String.length pk_x) with
+              | len when len = (String.length pk_x) -> ()
+              | _ -> failwith "Write failed\n"
+          in
+            ()
+  in
+    Printf.printf "I am (%s, %s) and exchanged key with (%s, %s)\n" user pk_x peer peer_key
+;;
+
