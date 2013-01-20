@@ -1,7 +1,7 @@
 LIBS =
 PACKAGES = zarith
-SOURCES = Ecc.ml register_dh.ml
-EXEC = register_dh
+SOURCES = Ecc.ml register_dh.ml exchange_dh.ml
+EXEC = register_dh exchange_dh
 CAMLC = ocamlc
 CAMLOPT = ocamlopt
 CAMLDEP = ocamldep
@@ -18,8 +18,9 @@ OPTOBJS = $(OBJS:.cmo=.cmx)
 #$(EXEC): $(OBJS)
 #	$(CAMLC) $(CUSTOM) -o $(EXEC) $(LIBS) $(OBJS)
 
-$(EXEC): $(OPTOBJS)
-	$(CAMLF) $(CAMLOPT) -o $(EXEC) $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg $(OPTOBJS)
+all: $(OPTOBJS)
+	$(CAMLF) $(CAMLOPT) -o register_dh $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx register_dh.cmx
+	$(CAMLF) $(CAMLOPT) -o exchange_dh $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx exchange_dh.cmx
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly 
 

@@ -2,4 +2,6 @@ Ecc.cmo : Ecc.cmi
 Ecc.cmx : Ecc.cmi
 register_dh.cmo : Ecc.cmi
 register_dh.cmx : Ecc.cmx
+exchange_dh.cmo : Ecc.cmi
+exchange_dh.cmx : Ecc.cmx
 Ecc.cmi :

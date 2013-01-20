@@ -18,7 +18,7 @@ let rec create_keys curve =
   let pk = multiply_point (curve.g) sk curve in
     match pk with
       | Infinity -> create_keys curve
-      | Point (pk_x, pk_y) -> (Z.to_string pk_x, Z.to_string sk)
+      | Point (pk_x, pk_y) -> (Z.to_string pk_x, Z.to_string pk_y, Z.to_string sk)
 
 
 let main =
@@ -31,7 +31,8 @@ let main =
     | None -> 
       Printf.printf "User already exists.\nIf you are %s use your PK else retry with a different name\n" user
     | Some pk_out -> 
-      let (pk, sk) = create_keys curve in
+      let (pk_x, pk_y, sk) = create_keys curve in
       let sk_out = open_out (String.concat "" ["users/"; user; ".sk"]) in
-        Printf.fprintf pk_out "%s\n" pk;
+        Printf.fprintf pk_out "%s\n" pk_x;
+        Printf.fprintf pk_out "%s\n" pk_y;
         Printf.fprintf sk_out "%s\n" sk;
