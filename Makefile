@@ -1,7 +1,7 @@
-LIBS = $(WITHUNIX)
+LIBS =
 PACKAGES = zarith
-SOURCES = eccdh.ml
-EXEC = eccdh
+SOURCES = Ecc.ml register_dh.ml exchange_dh.ml
+EXEC = register_dh exchange_dh
 CAMLC = ocamlc
 CAMLOPT = ocamlopt
 CAMLDEP = ocamldep
@@ -13,18 +13,19 @@ SMLIY = $(SOURCES:.mly=.ml)
 SMLIYL = $(SMLIY:.mll=.ml)
 SMLYL = $(filter %.ml,$(SMLIYL))
 OBJS = $(SMLYL:.ml=.cmo)
-OPTOBJS = $(.cmx=.cmx)
+OPTOBJS = $(OBJS:.cmo=.cmx)
 
 #$(EXEC): $(OBJS)
 #	$(CAMLC) $(CUSTOM) -o $(EXEC) $(LIBS) $(OBJS)
 
-$(EXEC): $(OPTOBJS)
-	$(CAMLF) $(CAMLOPT) -o $(EXEC) $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg $(OPTOBJS)
+all: $(OPTOBJS)
+	$(CAMLF) $(CAMLOPT) -o register_dh $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx register_dh.cmx
+	$(CAMLF) $(CAMLOPT) -o exchange_dh $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx exchange_dh.cmx
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly 
 
-#.ml.cmo:
-#	$(CAMLF) $(CAMLC) -c $(LIBS) -package $(PACKAGES) -linkpkg $<
+.ml.cmo:
+	$(CAMLF) $(CAMLC) -c $(LIBS) -package $(PACKAGES) -linkpkg $<
 
 .mli.cmi:
 	$(CAMLF) $(CAMLC) -c $(LIBS) -package $(PACKAGES) -linkpkg $<

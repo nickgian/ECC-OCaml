@@ -1,5 +1,8 @@
+*.pk
+*.sk
 *.swp
 *.*.swp
 *.cmx
 *.cmi
 *.o
+register_dh
