@@ -1,2 +1,5 @@
-eccdh.cmo :
-eccdh.cmx :
+Ecc.cmo : Ecc.cmi
+Ecc.cmx : Ecc.cmi
+register_dh.cmo : Ecc.cmi
+register_dh.cmx : Ecc.cmx
+Ecc.cmi :
