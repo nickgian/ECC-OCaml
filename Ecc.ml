@@ -74,9 +74,9 @@ struct
               | false -> normalize (Point (x_f, y_f)) curve
 
   (*Point multiplication using double-and-add method*)
-  let multiply_point (q : point) (d : Z.t) (curve : elliptic_curve) =
+  (*let multiply_point (q : point) (d : Z.t) (curve : elliptic_curve) =
     let rec multiply_aux d r =
-      match d = Z.zero with
+      match (d = Z.zero) || (d = Z.one) with
         | true -> r
         | false ->
             let t = double_point r curve in
@@ -87,8 +87,19 @@ struct
               )
     in
       multiply_aux d q
+   *)
 
-  (* ECC data representation functions*)
+  let multiply_point (q : point) (d : Z.t) (curve : elliptic_curve) =
+    let d_binary = Z.format "%b" d in
+    let d_bits = String.sub d_binary 1 ((String.length d_binary) - 1) in
+    let r = ref q in
+      String.iter (fun di -> r := double_point (!r) curve;
+                           match di with
+                             | '0' -> ()
+                             | '1' -> r := add_point (!r) (q) curve) d_bits;
+      (!r)
+
+    (* ECC data representation functions*)
 
   let int_pow a b = truncate ((float_of_int a) ** (float_of_int b))  
 
@@ -126,6 +137,16 @@ struct
     g = Point (integer_of_octStr "79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798",
                integer_of_octStr "483ADA7726A3C4655DA47BFC0E1108A8FD17B448A68554199C47D08FFB10D4B8");
     n = Z.of_string_base 16 "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141";
+    h = Z.one
+  }
+
+  let sec_128_r1 = {
+    p = Z.of_string_base 16 "FFFFFFFDFFFFFFFFFFFFFFFFFFFFFFFF";
+    a = Z.of_string_base 16 "FFFFFFFDFFFFFFFFFFFFFFFFFFFFFFFC";
+    b = Z.of_string_base 16  "E87579C11079F43DD824993C2CEE5ED3";
+    g = Point (integer_of_octStr "161FF7528B899B2D0C28607CA52C5B86",
+               integer_of_octStr "CF5AC8395BAFEB13C02DA292DDED7A83");
+    n = Z.of_string_base 16 "FFFFFFFE0000000075A30D1B9038A115";
     h = Z.one
   }
 

@@ -31,8 +31,7 @@ let main =
   Printf.printf "Enter your name: ";
   flush stdout;
   let user = Scanf.scanf "%s\n" (fun s -> s) in
-  let curve = brainpool_P256_r1 in
-
+  let curve = sec_128_r1 in
     match (try Some (open_out_gen [Open_wronly; Open_creat; Open_excl] 0o664 (String.concat "" ["users/"; user; ".pk"]))
            with Sys_error _ -> None) with
       | None -> 
