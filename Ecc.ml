@@ -11,7 +11,32 @@ struct
   }
 
 
+  (* Modular Arithmetic*)
+
+  let rec power a n p =
+    let isOdd x = ((Z.logand x Z.one) = Z.one) in
+      match n with
+        | n when n = Z.zero -> Z.one
+        | n when n = Z.one -> a
+        | n when isOdd n -> 
+            Z.( (a * (power (a * a) ((n - one) / (~$ 2)) p)))
+        | n -> Z.((power (a * a) (n / (~$ 2)) p))
+    
+  let inverse (a : Z.t) (p : Z.t) =
+            Z.((power a Z.(p - (~$ 2)) p) mod p)
+
   (*Elliptic Curve Functions*)
+
+  let normalize (r : point) curve =
+    let p = curve.p in
+    let normalize_aux (x : Z.t) =
+      match x with
+        | x when Z.(x < zero) -> Z.(p + x)
+        | x -> x
+    in
+      match r with
+        | Infinity -> Infinity
+        | Point (x_r, y_r) -> Point (normalize_aux x_r, normalize_aux y_r) 
 
   let is_point (r : point) curve =
     match r with
@@ -20,6 +45,7 @@ struct
           Z.((y ** 2) mod curve.p) = Z.(((x ** 3) + (curve.a * x) + curve.b) mod curve.p)
 
   let double_point (ec_point : point) curve =
+    let p = curve.p in
     match ec_point with
       | Infinity -> Infinity
       | Point (x, y) -> 
@@ -27,24 +53,25 @@ struct
             match Z.(zero = y) with
               | true -> Infinity
               | false -> 
-                  let s = Z.(((((~$ 3) * (x ** 2)) + curve.a) /| ((~$ 2) * y)) mod curve.p) in
-                  let x_r = Z.(((s ** 2) - ((~$ 2) * x)) mod curve.p) in
-                  let y_r = Z.((-y + (s * (x - x_r))) mod curve.p) in
-                    Point (x_r, y_r)
+                  let s = Z.(((((~$ 3) * (x ** 2)) + curve.a) * (inverse ((~$ 2) * y) p)) mod p) in
+                  let x_r = Z.(((s ** 2) - ((~$ 2) * x)) mod p) in
+                  let y_r = Z.((-y + (s * (x - x_r))) mod p) in
+                    normalize (Point (x_r, y_r)) curve
           )
 
   let add_point (q : point) (r : point) curve =
+    let p = curve.p in
     match q,r with
       | Infinity, Infinity -> Infinity
       | _, Infinity -> q
       | Infinity, _ -> r
       | Point (x_q, y_q), Point (x_r, y_r) -> 
-          let s = Z.(((y_r - y_q) /| (x_r - x_q)) mod curve.p) in
-          let x_f = Z.(((s ** 2) - x_q - x_r) mod curve.p) in
-          let y_f = Z.((s * (x_q - x_f) - y_q) mod curve.p) in
+          let s = Z.(((y_q - y_r) * (inverse (x_q - x_r) p)) mod p) in
+          let x_f = Z.(((s ** 2) - x_q - x_r) mod p) in
+          let y_f = Z.((s * (x_q - x_f) - y_q) mod p) in
             match (y_f = Z.zero) with
               | true -> Infinity
-              | false -> Point (x_f, y_f)
+              | false -> normalize (Point (x_f, y_f)) curve
 
   (*Point multiplication using double-and-add method*)
   let multiply_point (q : point) (d : Z.t) (curve : elliptic_curve) =
@@ -113,6 +140,8 @@ struct
       n = Z.of_string_base 16 "A9FB57DBA1EEA9BC3E660A909D838D718C397AA3B561A6F7901E0E82974856A7";
       h = Z.one
     }
+
+  let test_curve = {p = Z.(~$ 23); a = Z.(~$ 9); b = Z.(~$ 17); g = Point (Z.(~$ 9), Z.(~$ 5)); n = Z.(~$ 22); h = Z.(~$ 0);};;
 
 
 end;;

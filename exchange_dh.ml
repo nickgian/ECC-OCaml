@@ -27,5 +27,5 @@ let main =
             match (get_pk peer) with 
               | None -> failwith "User not found, try again\n"
               | Some pk ->
-                  let Point (shared_key, _) = multiply_point pk sk sec_256_r1 in
+                  let Point (shared_key, _) = multiply_point pk sk brainpool_P256_r1 in
                     Printf.printf "Shared key:\n %s\n" (Z.to_string shared_key)
