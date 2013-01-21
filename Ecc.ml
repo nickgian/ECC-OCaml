@@ -13,7 +13,7 @@ struct
 
   (* Modular Arithmetic*)
 
-  let rec power a n p =
+ (* let rec power a n p =
     let isOdd x = ((Z.logand x Z.one) = Z.one) in
       match n with
         | n when n = Z.zero -> Z.one
@@ -24,6 +24,10 @@ struct
     
   let inverse (a : Z.t) (p : Z.t) =
             Z.((power a Z.(p - (~$ 2)) p) mod p)
+  *)
+
+  let inverse (a : Z.t) (p : Z.t) =
+    Z.(invert a p)
 
   (*Elliptic Curve Functions*)
 

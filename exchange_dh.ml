@@ -5,8 +5,10 @@ let get_pk user =
   let file = String.concat "" ["users/"; user; ".pk"] in
     match (try Some (open_in file) with Sys_error _ -> None) with
       | None -> None
-      | Some input -> 
-          Some (Point (Z.of_string (input_line input), Z.of_string (input_line input)))
+      | Some input ->
+          let pk_x = Z.of_string (input_line input) in
+          let pk_y = Z.of_string (input_line input) in
+          Some (Point (pk_x, pk_y))
 
 let get_sk user =
   let file = String.concat "" ["users/"; user; ".sk"] in
@@ -27,5 +29,5 @@ let main =
             match (get_pk peer) with 
               | None -> failwith "User not found, try again\n"
               | Some pk ->
-                  let Point (shared_key, _) = multiply_point pk sk sec_128_r1 in
+                  let Point (shared_key, _) = multiply_point pk sk brainpool_P256_r1 in
                     Printf.printf "Shared key:\n %s\n" (Z.to_string shared_key)
