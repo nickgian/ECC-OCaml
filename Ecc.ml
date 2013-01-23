@@ -13,18 +13,18 @@ struct
 
   (* Modular Arithmetic*)
 
- (* let rec power a n p =
-    let isOdd x = ((Z.logand x Z.one) = Z.one) in
-      match n with
-        | n when n = Z.zero -> Z.one
-        | n when n = Z.one -> a
-        | n when isOdd n -> 
-            Z.( (a * (power (a * a) ((n - one) / (~$ 2)) p)))
-        | n -> Z.((power (a * a) (n / (~$ 2)) p))
-    
-  let inverse (a : Z.t) (p : Z.t) =
-            Z.((power a Z.(p - (~$ 2)) p) mod p)
-  *)
+  (* let rec power a n p =
+   let isOdd x = ((Z.logand x Z.one) = Z.one) in
+   match n with
+   | n when n = Z.zero -> Z.one
+   | n when n = Z.one -> a
+   | n when isOdd n -> 
+   Z.( (a * (power (a * a) ((n - one) / (~$ 2)) p)))
+   | n -> Z.((power (a * a) (n / (~$ 2)) p))
+
+   let inverse (a : Z.t) (p : Z.t) =
+   Z.((power a Z.(p - (~$ 2)) p) mod p)
+   *)
 
   let inverse (a : Z.t) (p : Z.t) =
     Z.(invert a p)
@@ -50,47 +50,45 @@ struct
 
   let double_point (ec_point : point) curve =
     let p = curve.p in
-    match ec_point with
-      | Infinity -> Infinity
-      | Point (x, y) -> 
-          (
-            match Z.(zero = y) with
-              | true -> Infinity
-              | false -> 
-                  let s = Z.(((((~$ 3) * (x ** 2)) + curve.a) * (inverse ((~$ 2) * y) p)) mod p) in
-                  let x_r = Z.(((s ** 2) - ((~$ 2) * x)) mod p) in
-                  let y_r = Z.((-y + (s * (x - x_r))) mod p) in
-                    normalize (Point (x_r, y_r)) curve
-          )
+      match ec_point with
+        | Infinity -> Infinity
+        | Point (x, y) ->
+            (match Z.(zero = y) with
+                | true -> Infinity
+                | false -> 
+                    let s = Z.(((((~$ 3) * (x ** 2)) + curve.a) * (inverse ((~$ 2) * y) p)) mod p) in
+                    let x_r = Z.(((s ** 2) - ((~$ 2) * x)) mod p) in
+                    let y_r = Z.((-y + (s * (x - x_r))) mod p) in
+                      normalize (Point (x_r, y_r)) curve)
 
   let add_point (q : point) (r : point) curve =
     let p = curve.p in
-    match q,r with
-      | Infinity, Infinity -> Infinity
-      | _, Infinity -> q
-      | Infinity, _ -> r
-      | Point (x_q, y_q), Point (x_r, y_r) -> 
-          let s = Z.(((y_q - y_r) * (inverse (x_q - x_r) p)) mod p) in
-          let x_f = Z.(((s ** 2) - x_q - x_r) mod p) in
-          let y_f = Z.((s * (x_q - x_f) - y_q) mod p) in
-            match (y_f = Z.zero) with
-              | true -> Infinity
-              | false -> normalize (Point (x_f, y_f)) curve
+      match q,r with
+        | Infinity, Infinity -> Infinity
+        | _, Infinity -> q
+        | Infinity, _ -> r
+        | Point (x_q, y_q), Point (x_r, y_r) -> 
+            let s = Z.(((y_q - y_r) * (inverse (x_q - x_r) p)) mod p) in
+            let x_f = Z.(((s ** 2) - x_q - x_r) mod p) in
+            let y_f = Z.((s * (x_q - x_f) - y_q) mod p) in
+              match (y_f = Z.zero) with
+                | true -> Infinity
+                | false -> normalize (Point (x_f, y_f)) curve
 
   (*Point multiplication using double-and-add method*)
   (*let multiply_point (q : point) (d : Z.t) (curve : elliptic_curve) =
-    let rec multiply_aux d r =
-      match (d = Z.zero) || (d = Z.one) with
-        | true -> r
-        | false ->
-            let t = double_point r curve in
-              ( 
-                match ((Z.logand d (Z.one)) = Z.one) with
-                  | true -> multiply_aux (Z.(d asr 1)) (add_point t q curve)
-                  | false -> multiply_aux (Z.(d asr 1)) t 
-              )
-    in
-      multiply_aux d q
+   let rec multiply_aux d r =
+   match (d = Z.zero) || (d = Z.one) with
+   | true -> r
+   | false ->
+   let t = double_point r curve in
+   ( 
+   match ((Z.logand d (Z.one)) = Z.one) with
+   | true -> multiply_aux (Z.(d asr 1)) (add_point t q curve)
+   | false -> multiply_aux (Z.(d asr 1)) t 
+   )
+   in
+   multiply_aux d q
    *)
 
   let multiply_point (q : point) (d : Z.t) (curve : elliptic_curve) =
@@ -98,12 +96,12 @@ struct
     let d_bits = String.sub d_binary 1 ((String.length d_binary) - 1) in
     let r = ref q in
       String.iter (fun di -> r := double_point (!r) curve;
-                           match di with
-                             | '0' -> ()
-                             | '1' -> r := add_point (!r) (q) curve) d_bits;
+                             match di with
+                               | '0' -> ()
+                               | '1' -> r := add_point (!r) (q) curve) d_bits;
       (!r)
 
-    (* ECC data representation functions*)
+  (* ECC data representation functions*)
 
   let int_pow a b = truncate ((float_of_int a) ** (float_of_int b))  
 
@@ -168,5 +166,54 @@ struct
 
   let test_curve = {p = Z.(~$ 23); a = Z.(~$ 9); b = Z.(~$ 17); g = Point (Z.(~$ 9), Z.(~$ 5)); n = Z.(~$ 22); h = Z.(~$ 0);};;
 
+  (*Generating random ints with a maximum length of decimal numbers*)
+  let random_big_int maxSize =
+    Random.self_init ();
+    let size = 1 + Random.int (maxSize - 1) in
+    let big_int = String.create size in
+    let rand_str = String.map (fun c -> 
+                                 let i = 48 + (Random.int 9) in Char.chr i) big_int in
+      Z.of_string rand_str
+
+
+
+  let rec sign m (sk, pk) curve =
+    let d_size = String.length (Z.to_string (curve.n)) in
+    let k = random_big_int d_size in
+    let kG = multiply_point (curve.g) k curve in
+      match kG with 
+        | Infinity -> sign m (sk, pk) curve
+        | Point (x1, y1) ->
+            let r = Z.(x1 mod curve.n) in
+              (match (r = Z.zero) with
+                 | true -> sign m (sk, pk) curve
+                 | false -> 
+                     let inv_k = Z.invert k curve.n in
+                     let hash_m = Digest.to_hex (Digest.string m) in
+                     let e = Z.of_string_base 16 hash_m in
+                     let s = Z.((inv_k * (e + sk * r)) mod (curve.n)) in
+                       (match (s = Z.zero) with
+                          | true -> sign m (sk, pk) curve
+                          | false -> (r, s)
+                       ))
+
+  let verify_range num lowbound upbound =
+    (Z.(num >= lowbound) && Z.(num <= upbound))
+
+  let verify m (r, s) pk curve =
+    match (verify_range r Z.one Z.(curve.n - one), verify_range s Z.one Z.(curve.n - one)) with
+      | (true, true) ->
+          let hash_m = Digest.to_hex (Digest.string m) in
+          let e = Z.of_string_base 16 hash_m in
+          let w = Z.invert s curve.n in
+          let u1 = Z.((e*w) mod curve.n) in 
+          let u2 = Z.((r*w) mod curve.n) in
+          let u1G = multiply_point curve.g u1 curve in
+          let u2Q = multiply_point pk u2 curve in
+          let x = add_point u1G u2Q curve in
+            (match x with
+               | Infinity -> false
+               | Point (x1, y1) -> Z.((x1 mod curve.n) = r))
+      | (_, _) -> false
 
 end;;
