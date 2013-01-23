@@ -30,5 +30,6 @@ let main =
               match (get_pk peer) with 
                 | None -> failwith "User not found, try again\n"
                 | Some pk ->
-                    let Point (shared_key, _) = multiply_point pk sk curve in
-                      Printf.printf "Shared key:\n %s\n" (Z.to_string shared_key)
+                    match multiply_point pk sk curve with
+                      | Infinity -> failwith "internal error"
+                      | Point (shared_key, _) -> Printf.printf "Shared key:\n %s\n" (Z.to_string shared_key)

@@ -23,4 +23,9 @@ module Ecc :
     val sec_128_r1 : elliptic_curve
     val brainpool_P256_r1 : elliptic_curve
     val test_curve : elliptic_curve
+    val random_big_int : Z.t -> Z.t
+    val sign : string -> Z.t * 'a -> elliptic_curve -> Z.t * Z.t
+    val verify_range : 'a -> 'a -> 'a -> bool
+    val verify : string -> Z.t * Z.t -> point -> elliptic_curve -> bool
+    val create_keys : elliptic_curve -> string * string * string
   end

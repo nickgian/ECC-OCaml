@@ -1,32 +1,6 @@
 open Ecc
 include Ecc
 
-(*Generating random ints with a maximum length of decimal numbers*)
-let random_big_int maxSize =
-  Random.self_init ();
-  let size = 1 + Random.int (maxSize - 1) in
-  let big_int = String.create size in
-  let rand_str = String.map (fun c -> 
-                               let i = 48 + (Random.int 9) in Char.chr i) big_int in
-    Z.of_string rand_str
-
-(*Create public key*)
-
-let rec create_keys curve = 
-  let d_size = String.length (Z.to_string (curve.n)) in
-  let sk = random_big_int d_size in
-  let pk = multiply_point (curve.g) sk curve in
-    match pk with
-      | Infinity -> failwith "infinity\n"
-      | Point (pk_x, pk_y) -> 
-          begin
-            match is_point (Point (pk_x, pk_y)) curve with
-              | true -> 
-                  Printf.printf "true\n";
-                  (Z.to_string pk_x, Z.to_string pk_y, Z.to_string sk)
-              | false -> 
-                  failwith "false\n"
-          end
 let main =
   let curve = brainpool_P256_r1 in
     Printf.printf "Enter your name: ";
