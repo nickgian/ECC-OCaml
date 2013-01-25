@@ -5,4 +5,13 @@
 *.cmx
 *.cmi
 *.o
+*.log
+*.aux
+*.aux
+*.dvi
+*.gz
+messages
+users
 register_dh
+sign
+verify

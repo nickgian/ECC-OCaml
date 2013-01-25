@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1}Ελλειπτικές καμπύλες}{2}{section.1}
+\contentsline {subsection}{\numberline {1.1}Εισαγωγή}{2}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Ελλειπτικές καμπύλες στο $\mathcal {R}$}{2}{subsection.1.2}
+\contentsline {subsubsection}{\numberline {1.2.1}Ορισμένες πράξεις σε μία ελλειπτική καμπύλη πάνω στο $\mathcal {R}$}{2}{subsubsection.1.2.1}
+\contentsline {paragraph}{Αντίθετο σημείο}{2}{section*.2}
+\contentsline {paragraph}{Πρόσθεση δύο σημείων}{2}{section*.3}
+\contentsline {paragraph}{Διπλασιασμός σημείου}{2}{section*.4}
+\contentsline {subsection}{\numberline {1.3}Ελλειπτικές καμπύλες πάνω από το σώμα $F_p$.}{2}{subsection.1.3}
+\contentsline {subsubsection}{\numberline {1.3.1}Ορισμένες πράξεις σε μία ελλειπτική καμπύλη πάνω στο $F_p$}{2}{subsubsection.1.3.1}
+\contentsline {paragraph}{Αντίθετο σημείο}{3}{section*.5}
+\contentsline {paragraph}{Πρόσθεση δύο σημείων}{3}{section*.6}
+\contentsline {paragraph}{Διπλασιασμός σημείου}{3}{section*.7}
+\contentsline {subsection}{\numberline {1.4}Ελλειπτικές καμπύλες πάνω από το σώμα $F_{2^m}$.}{3}{subsection.1.4}
+\contentsline {section}{\numberline {2}Το πρόβλημα του διακριτού λογαρίθμου σε ελλειπτικές καμπύλες (ECDLP)}{4}{section.2}
+\contentsline {subsection}{\numberline {2.1}Βαθμωτός Πολλαπλασιασμός}{4}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}ECDLP}{4}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Elliptic curve Diffie-Hellman (ECDH)}{4}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Elliptic curve digital signature algorithm (ECDSA)}{4}{subsection.2.4}
+\contentsline {section}{\numberline {3}Υλοποίηση ενός συστήματος κρυπτογραφίας βασισμένο σε ελλειπτικές καμπύλες}{5}{section.3}
+\contentsline {subsection}{\numberline {3.1}Επιλογή καμπύλης και παραμέτρων}{5}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Επιλογή παραμέτρων}{5}{subsection.3.2}

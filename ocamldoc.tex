@@ -1,0 +1,163 @@
+\documentclass[11pt]{article} 
+\usepackage[latin1]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage{textcomp}
+\usepackage{fullpage} 
+\usepackage{url} 
+\usepackage{ocamldoc}
+\begin{document}
+\tableofcontents
+\section{Module {\tt{Ecc}}}
+\label{module:Ecc}\index{Ecc@\verb`Ecc`}
+
+
+\ocamldocvspace{0.5cm}
+
+
+
+\begin{ocamldoccode}
+{\tt{module }}{\tt{Ecc}}{\tt{ : }}\end{ocamldoccode}
+\label{module:Ecc.Ecc}\index{Ecc@\verb`Ecc`}
+
+\begin{ocamldocsigend}
+
+
+\label{type:Ecc.Ecc.point}\begin{ocamldoccode}
+type point =
+  | Infinity
+  | Point of Z.t * Z.t
+\end{ocamldoccode}
+\index{point@\verb`point`}
+
+
+\label{type:Ecc.Ecc.elliptic-underscorecurve}\begin{ocamldoccode}
+type elliptic_curve = {\char123}
+  p : Z.t ;
+  a : Z.t ;
+  b : Z.t ;
+  g : point ;
+  n : Z.t ;
+  h : Z.t ;
+{\char125}
+\end{ocamldoccode}
+\index{elliptic-underscorecurve@\verb`elliptic_curve`}
+
+
+\label{val:Ecc.Ecc.inverse}\begin{ocamldoccode}
+val inverse : Z.t -> Z.t -> Z.t
+\end{ocamldoccode}
+\index{inverse@\verb`inverse`}
+
+
+\label{val:Ecc.Ecc.normalize}\begin{ocamldoccode}
+val normalize : point -> elliptic_curve -> point
+\end{ocamldoccode}
+\index{normalize@\verb`normalize`}
+
+
+\label{val:Ecc.Ecc.is-underscorepoint}\begin{ocamldoccode}
+val is_point : point -> elliptic_curve -> bool
+\end{ocamldoccode}
+\index{is-underscorepoint@\verb`is_point`}
+
+
+\label{val:Ecc.Ecc.double-underscorepoint}\begin{ocamldoccode}
+val double_point : point -> elliptic_curve -> point
+\end{ocamldoccode}
+\index{double-underscorepoint@\verb`double_point`}
+
+
+\label{val:Ecc.Ecc.add-underscorepoint}\begin{ocamldoccode}
+val add_point : point -> point -> elliptic_curve -> point
+\end{ocamldoccode}
+\index{add-underscorepoint@\verb`add_point`}
+
+
+\label{val:Ecc.Ecc.multiply-underscorepoint}\begin{ocamldoccode}
+val multiply_point : point -> Z.t -> elliptic_curve -> point
+\end{ocamldoccode}
+\index{multiply-underscorepoint@\verb`multiply_point`}
+
+
+\label{val:Ecc.Ecc.int-underscorepow}\begin{ocamldoccode}
+val int_pow : int -> int -> int
+\end{ocamldoccode}
+\index{int-underscorepow@\verb`int_pow`}
+
+
+\label{val:Ecc.Ecc.integer-underscoreof-underscoreoctet}\begin{ocamldoccode}
+val integer_of_octet : string -> int
+\end{ocamldoccode}
+\index{integer-underscoreof-underscoreoctet@\verb`integer_of_octet`}
+
+
+\label{val:Ecc.Ecc.octList-underscoreof-underscoreoctStr}\begin{ocamldoccode}
+val octList_of_octStr : string -> string list
+\end{ocamldoccode}
+\index{octList-underscoreof-underscoreoctStr@\verb`octList_of_octStr`}
+
+
+\label{val:Ecc.Ecc.integer-underscoreof-underscoreoctStr}\begin{ocamldoccode}
+val integer_of_octStr : string -> Z.t
+\end{ocamldoccode}
+\index{integer-underscoreof-underscoreoctStr@\verb`integer_of_octStr`}
+
+
+\label{val:Ecc.Ecc.sec-underscore256-underscorer1}\begin{ocamldoccode}
+val sec_256_r1 : elliptic_curve
+\end{ocamldoccode}
+\index{sec-underscore256-underscorer1@\verb`sec_256_r1`}
+
+
+\label{val:Ecc.Ecc.sec-underscore128-underscorer1}\begin{ocamldoccode}
+val sec_128_r1 : elliptic_curve
+\end{ocamldoccode}
+\index{sec-underscore128-underscorer1@\verb`sec_128_r1`}
+
+
+\label{val:Ecc.Ecc.brainpool-underscoreP256-underscorer1}\begin{ocamldoccode}
+val brainpool_P256_r1 : elliptic_curve
+\end{ocamldoccode}
+\index{brainpool-underscoreP256-underscorer1@\verb`brainpool_P256_r1`}
+
+
+\label{val:Ecc.Ecc.test-underscorecurve}\begin{ocamldoccode}
+val test_curve : elliptic_curve
+\end{ocamldoccode}
+\index{test-underscorecurve@\verb`test_curve`}
+
+
+\label{val:Ecc.Ecc.random-underscorebig-underscoreint}\begin{ocamldoccode}
+val random_big_int : Z.t -> Z.t
+\end{ocamldoccode}
+\index{random-underscorebig-underscoreint@\verb`random_big_int`}
+
+
+\label{val:Ecc.Ecc.sign}\begin{ocamldoccode}
+val sign : string -> Z.t * {\textquotesingle}a -> elliptic_curve -> Z.t * Z.t
+\end{ocamldoccode}
+\index{sign@\verb`sign`}
+
+
+\label{val:Ecc.Ecc.verify-underscorerange}\begin{ocamldoccode}
+val verify_range : {\textquotesingle}a -> {\textquotesingle}a -> {\textquotesingle}a -> bool
+\end{ocamldoccode}
+\index{verify-underscorerange@\verb`verify_range`}
+
+
+\label{val:Ecc.Ecc.verify}\begin{ocamldoccode}
+val verify : string -> Z.t * Z.t -> point -> elliptic_curve -> bool
+\end{ocamldoccode}
+\index{verify@\verb`verify`}
+
+
+\label{val:Ecc.Ecc.create-underscorekeys}\begin{ocamldoccode}
+val create_keys : elliptic_curve -> string * string * string
+\end{ocamldoccode}
+\index{create-underscorekeys@\verb`create_keys`}
+\end{ocamldocsigend}
+
+
+
+
+\end{document}
