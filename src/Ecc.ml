@@ -119,27 +119,6 @@ struct
 
   (* Recommended Elliptic Curve Domain Parameters*)
 
-  (* http://www.secg.org/collateral/sec2_final.pdf *)
-  let sec_256_r1 = {
-    p = Z.of_string_base 16 "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF";
-    a = Z.of_string_base 16 "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC";
-    b = Z.of_string_base 16  "5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B";
-    g = Point (integer_of_octStr "79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798",
-               integer_of_octStr "483ADA7726A3C4655DA47BFC0E1108A8FD17B448A68554199C47D08FFB10D4B8");
-    n = Z.of_string_base 16 "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141";
-    h = Z.one
-  }
-
-  let sec_128_r1 = {
-    p = Z.of_string_base 16 "FFFFFFFDFFFFFFFFFFFFFFFFFFFFFFFF";
-    a = Z.of_string_base 16 "FFFFFFFDFFFFFFFFFFFFFFFFFFFFFFFC";
-    b = Z.of_string_base 16  "E87579C11079F43DD824993C2CEE5ED3";
-    g = Point (integer_of_octStr "161FF7528B899B2D0C28607CA52C5B86",
-               integer_of_octStr "CF5AC8395BAFEB13C02DA292DDED7A83");
-    n = Z.of_string_base 16 "FFFFFFFE0000000075A30D1B9038A115";
-    h = Z.one
-  }
-
   (* http://www.ecc-brainpool.org/download/Domain-parameters.pdf *)
   let brainpool_P256_r1 =
     {
@@ -162,38 +141,38 @@ struct
     let big_int = String.create size in
     let rand_str = String.map (fun c -> 
                                  let i = 48 + (Random.int 9) in Char.chr i) big_int in
-    let num = Z.of_string rand_str in
+    let num = Z.(one + (of_string rand_str)) in
       match num < bound with
         | true -> num
         | false -> random_big_int bound
 
   (* ECDSA*)
 
-  let rec sign m (sk, pk) curve =
+  let rec sign m sk curve =
     let k = random_big_int curve.n in
       match (try Some (Z.invert k curve.n) with division_by_zero -> None) with
-        | None -> sign m (sk, pk) curve
+        | None -> sign m sk curve
         | Some inv_k ->
             let kG = multiply_point (curve.g) k curve in
               (match kG with 
-                 | Infinity -> sign m (sk, pk) curve
+                 | Infinity -> sign m sk curve
                  | Point (x1, y1) ->
                      let r = Z.(x1 mod curve.n) in
                        (match (r = Z.zero) with
-                          | true -> sign m (sk, pk) curve
+                          | true -> sign m sk curve
                           | false -> 
                               let hash_m = Digest.to_hex (Digest.string m) in
                               let e = Z.of_string_base 16 hash_m in
                               let s = Z.((inv_k * (e + sk * r)) mod (curve.n)) in
                                 (match (s = Z.zero) with
-                                   | true -> sign m (sk, pk) curve
+                                   | true -> sign m sk curve
                                    | false -> 
                                        (match Z.((gcd s curve.n) = Z.one) with
                                           | true -> (r, s)
-                                          | false -> sign m (sk, pk) curve
+                                          | false -> sign m sk curve
                                        ))))
 
-  let verify_range num lowbound upbound =
+  let verify_range (num : Z.t) (lowbound : Z.t) (upbound : Z.t) =
     (Z.(num >= lowbound) && Z.(num <= upbound))
 
   let verify m (r, s) pk curve =
@@ -224,8 +203,7 @@ let rec create_keys curve =
           begin
             match is_point (Point (pk_x, pk_y)) curve with
               | true -> 
-                  Printf.printf "true\n";
-                  (Z.to_string pk_x, Z.to_string pk_y, Z.to_string sk)
+                  (Point (pk_x, pk_y), sk)
               | false -> 
                   failwith "false\n"
           end

@@ -10,8 +10,13 @@
 *.aux
 *.dvi
 *.gz
-messages
-users
+*.pk
+*.sk
+*.msg
+.depend.input
+.depend
+.DS_Store
+exchange_dh
 register_dh
 sign
 verify

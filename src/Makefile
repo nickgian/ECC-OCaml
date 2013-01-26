@@ -1,12 +1,10 @@
 LIBS =
 PACKAGES = zarith
-SOURCES = Ecc.ml register_dh.ml exchange_dh.ml
-EXEC = register_dh exchange_dh
+SOURCES = Ecc.ml register_dh.ml exchange_dh.ml sign.ml verify.ml
+EXEC = register_dh exchange_dh sign verify
 CAMLC = ocamlc
 CAMLOPT = ocamlopt
 CAMLDEP = ocamldep
-CAMLLEX = ocamllex
-CAMLYACC = ocamlyacc
 CAMLF = ocamlfind
 
 SMLIY = $(SOURCES:.mly=.ml)
@@ -15,12 +13,11 @@ SMLYL = $(filter %.ml,$(SMLIYL))
 OBJS = $(SMLYL:.ml=.cmo)
 OPTOBJS = $(OBJS:.cmo=.cmx)
 
-#$(EXEC): $(OBJS)
-#	$(CAMLC) $(CUSTOM) -o $(EXEC) $(LIBS) $(OBJS)
-
 all: $(OPTOBJS)
 	$(CAMLF) $(CAMLOPT) -o register_dh $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx register_dh.cmx
 	$(CAMLF) $(CAMLOPT) -o exchange_dh $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx exchange_dh.cmx
+	$(CAMLF) $(CAMLOPT) -o sign $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx sign.cmx
+	$(CAMLF) $(CAMLOPT) -o verify $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx verify.cmx
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly 
 
@@ -36,6 +33,7 @@ all: $(OPTOBJS)
 clean::
 	rm -f *.cm[iox] *~ .*~ #*#
 	rm -f $(EXEC)
+	rm -f *.o
 	rm -f $(EXEC).opt
 
 .depend.input: Makefile

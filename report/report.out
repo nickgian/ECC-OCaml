@@ -1,9 +1,9 @@
 \BOOKMARK [1][-]{section.1}{Ελλειπτικές καμπύλες}{}% 1
 \BOOKMARK [2][-]{subsection.1.1}{Εισαγωγή}{section.1}% 2
 \BOOKMARK [2][-]{subsection.1.2}{Ελλειπτικές καμπύλες στο R}{section.1}% 3
-\BOOKMARK [3][-]{subsubsection.1.2.1}{Ορισμένες πράξεις σε μία ελλειπτική καμπύλη πάνω στο R}{subsection.1.2}% 4
+\BOOKMARK [3][-]{subsubsection.1.2.1}{Ορισμένες πράξεις σε ελλειπτικές καμπύλες πάνω στο R}{subsection.1.2}% 4
 \BOOKMARK [2][-]{subsection.1.3}{Ελλειπτικές καμπύλες πάνω από το σώμα Fp.}{section.1}% 5
-\BOOKMARK [3][-]{subsubsection.1.3.1}{Ορισμένες πράξεις σε μία ελλειπτική καμπύλη πάνω στο Fp}{subsection.1.3}% 6
+\BOOKMARK [3][-]{subsubsection.1.3.1}{Ορισμένες πράξεις σε σε ελλειπτικές καμπύλες πάνω στο Fp}{subsection.1.3}% 6
 \BOOKMARK [2][-]{subsection.1.4}{Ελλειπτικές καμπύλες πάνω από το σώμα F2m.}{section.1}% 7
 \BOOKMARK [1][-]{section.2}{Το πρόβλημα του διακριτού λογαρίθμου σε ελλειπτικές καμπύλες \(ECDLP\)}{}% 8
 \BOOKMARK [2][-]{subsection.2.1}{Βαθμωτός Πολλαπλασιασμός}{section.2}% 9
@@ -11,5 +11,17 @@
 \BOOKMARK [2][-]{subsection.2.3}{Elliptic\040curve\040Diffie-Hellman\040\(ECDH\)}{section.2}% 11
 \BOOKMARK [2][-]{subsection.2.4}{Elliptic\040curve\040digital\040signature\040algorithm\040\(ECDSA\)}{section.2}% 12
 \BOOKMARK [1][-]{section.3}{Υλοποίηση ενός συστήματος κρυπτογραφίας βασισμένο σε ελλειπτικές καμπύλες}{}% 13
-\BOOKMARK [2][-]{subsection.3.1}{Επιλογή καμπύλης και παραμέτρων}{section.3}% 14
+\BOOKMARK [2][-]{subsection.3.1}{Πλεονεκτήματα χρήσης}{section.3}% 14
 \BOOKMARK [2][-]{subsection.3.2}{Επιλογή παραμέτρων}{section.3}% 15
+\BOOKMARK [2][-]{subsection.3.3}{Επίπεδα υλοποίησης}{section.3}% 16
+\BOOKMARK [2][-]{subsection.3.4}{Αλγόριθμοι υλοποίησης βαθμωτού πολλαπλασιασμού}{section.3}% 17
+\BOOKMARK [1][-]{section.4}{Υλοποίηση στη γλώσσα OCaml}{}% 18
+\BOOKMARK [2][-]{subsection.4.1}{Υλοποίηση βιβλιοθήκης}{section.4}% 19
+\BOOKMARK [3][-]{subsubsection.4.1.1}{Modulo αριθμητική}{subsection.4.1}% 20
+\BOOKMARK [3][-]{subsubsection.4.1.2}{Υλοποίηση πράξεων ομάδας}{subsection.4.1}% 21
+\BOOKMARK [3][-]{subsubsection.4.1.3}{Υλοποίηση βαθμωτού πολλαπλασιασμού}{subsection.4.1}% 22
+\BOOKMARK [3][-]{subsubsection.4.1.4}{Ψηφιακή υπογραφή}{subsection.4.1}% 23
+\BOOKMARK [2][-]{subsection.4.2}{Προγράμματα επίδειξης}{section.4}% 24
+\BOOKMARK [3][-]{subsubsection.4.2.1}{Υλοποίηση ECDH}{subsection.4.2}% 25
+\BOOKMARK [3][-]{subsubsection.4.2.2}{ECDSA}{subsection.4.2}% 26
+\BOOKMARK [2][-]{subsection.4.3}{Τεκμηρίωση Βιβλιοθήκης}{section.4}% 27
