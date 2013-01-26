@@ -273,19 +273,20 @@ h & $\sharp E(\mathbb{F}_p)/n$ \\ \hline
 \subsubsection{Ψηφιακή υπογραφή}
 Για τη διαδικασία υπογραφής και επαλήθευσης ενός μηνύματος ακολουθήσαμε τον αλγόριθμο που ορίζει το ECDSA με τη διαφορά ότι αντι για την προτεινόμενη secure hash function SHA-1 χρησιμοποιήσαμε το MD5.
 \\ \medskip
-\textit{Σημειώνεται ότι για πραγματικές εφαρμογές θα πρέπει να χρησιμοποιηθεί μία πιο ισχυρή συνάρτηση κατακερματισμού.
+\emph{Σημειώνεται ότι για πραγματικές εφαρμογές θα πρέπει να χρησιμοποιηθεί μία πιο ισχυρή συνάρτηση κατακερματισμού.
 }\subsection{Προγράμματα επίδειξης}
 \subsubsection{Υλοποίηση ECDH}
 Για να υλοποιήσουμε το σχήμα κρυπτογραφίας ECDH όπως αυτό αναλύθηκε στο 2.3 δημιουργήσαμε δύο προγράμματα που χρησιμοποιούν την παραπάνω βιβλιοθήκη, η λειτουργία των οποίων εξηγείται παρακάτω:
 \paragraph{Register.} Το πρόγραμμα \emph{register\_dh} δέχεται ως input ένα username και δημιουργεί ένα αρχείο με όνομα \emph{username.pk} που περιέχει το δημόσιο κλειδί του χρήστη και ένα αρχείο με όνομα \emph{username.sk} που περιέχει το ιδιωτικό κλειδί του χρήστη. Σε περίπτωση που υπάρχουν αρχεία με αυτό το όνομα δίνεται μήνυμα λάθους και το πρόγραμμα τερματίζει. \\
 \medskip
-\textit{Σημείωνεται ότι το ιδιωτικό κλειδί του χρήστη αποθηκεύεται στο δίσκο ως plain-text,  ενώ σε πραγματική εφαρμογή θα έπρεπε να κρυπτογραφείται.}
+\emph{Σημείωνεται ότι το ιδιωτικό κλειδί του χρήστη αποθηκεύεται στο δίσκο ως plain-text,  ενώ σε πραγματική εφαρμογή θα έπρεπε να κρυπτογραφείται.}
 \paragraph{Exchange.} Το πρόγραμμα \emph{exchange\_dh} δέχεται ως input το όνομα ενός χρήστη και το όνομα του χρήστη με τον οποίο θέλει να ανταλλάξει κλειδί. Στη συνέχεια διαβάζει το δημόσιο κλειδί του δεύτερου χρήστη και το ιδιωτικό κλειδί του πρώτου χρήστη και υπολογίζει το κοινό κλειδί.
 \subsubsection{ECDSA}
 Για την υπογραφή μηνυμάτων δημιουργήσαμε δύο προγράμματα που χρησιμοποιούν τις συναρτήσεις \emph{sign} και \emph{verify} της βιβλιοθήκης η λειτουργία των οποίων εξηγείται παρακάτω:
 \paragraph{Sign.} Το πρόγραμμα \emph{sign} δέχεται ως input το username ενός χρήστη και ένα μήνυμα και δημιουργεί ένα αρχείο με όνομα \emph{username.msg} που περιέχει το μήνυμα και την υπογραφή. Σε περίπτωση που δε βρεθεί το username δίνεται μήνυμα λάθους και το πρόγραμμα τερματίζει.
 \paragraph{Verify.} Το πρόγραμμα \emph{verify} δέχεται ως input το username του χρήστη στον οποίο ανήκει το μήνυμα που θέλουμε να επαληθεύσουμε, ανακτά το δημόσιο κλειδί του, βρίσκει το μήνυμα και την υπογραφή απο το αρχείο που έχει δημιουργήσει το \emph{sign} και επαληθεύει την αυθεντικότητα της υπογραφής.
-
+\subsubsection{Πηγαίος κώδικας}
+Ο πηγαίος κώδικας για όλα τα παραπάνω βρίσκεται στο \href{https://github.com/zoep/ECC-OCaml}{Github}.
 \subsection{Τεκμηρίωση Βιβλιοθήκης}
 
 \begin{ocamldoccode}
@@ -388,22 +389,17 @@ Given a point P on an elliptic curve, an integer k and the elliptic curve return
 \end{ocamldocdescription}
 
 
-\label{val:Ecc.Ecc.integer-underscoreof-underscoreoctet}\begin{ocamldoccode}
-val integer_of_octet : string -> int
-\end{ocamldoccode}
-\index{integer-underscoreof-underscoreoctet@\verb`integer_of_octet`}
-
-
-\label{val:Ecc.Ecc.octList-underscoreof-underscoreoctStr}\begin{ocamldoccode}
-val octList_of_octStr : string -> string list
-\end{ocamldoccode}
-\index{octList-underscoreof-underscoreoctStr@\verb`octList_of_octStr`}
 
 
 \label{val:Ecc.Ecc.integer-underscoreof-underscoreoctStr}\begin{ocamldoccode}
 val integer_of_octStr : string -> Z.t
 \end{ocamldoccode}
 \index{integer-underscoreof-underscoreoctStr@\verb`integer_of_octStr`}
+\begin{ocamldocdescription}
+Converts an octet string to an intenger. Useful for defining domain parameters.
+
+
+\end{ocamldocdescription}
 
 
 \label{val:Ecc.Ecc.brainpool-underscoreP256-underscorer1}\begin{ocamldoccode}

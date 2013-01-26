@@ -8,5 +8,6 @@ http://forge.ocamlcore.org/projects/zarith
 
 Or install using OPAM : opam install zarith
 
-Compile with :
-make
+Build with :
+	$ cd src
+	$ ./build.sh
