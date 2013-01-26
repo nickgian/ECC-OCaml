@@ -10,5 +10,5 @@ Or install using OPAM : opam install zarith
 
 Build with:
 	
-	`$ cd src`
-	`$ ./build.sh`
+	$ cd src
+	$ ./build.sh
