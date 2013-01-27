@@ -7,8 +7,7 @@
 \usepackage{float}
 \usepackage{textcomp}
 \usepackage{url} 
-\usepackage{ocamldoc}
-
+\usepackage{ocamldoc}			
 \setsansfont[Mapping=tex-text]{CMU Concrete}
 \setmonofont{Courier New}
 \SetKw{Kwdto}{downto}
@@ -29,13 +28,18 @@
 % To remove the navigation symbols from 
 % the bottom of slides%
 \setbeamertemplate{navigation symbols}{} 
-%
-\usepackage{graphicx}
+\expandafter\def\expandafter\insertshorttitle\expandafter{%
+  \insertshorttitle\hfill\insertframenumber\,/\,\inserttotalframenumber}
+  
+
+   
+  
+
 %\usepackage{bm}         % For typesetting bold math (not \mathbold)
 %\logo{\includegraphics[height=0.6cm]{yourlogo.eps}}
 %
 \title[Elliptic Curve Cryptography]{Υλοποίηση ανταλλαγής κλειδιού DH και ψηφιακών υπογραφών βασισμένη σε ελλειπτικές καμπύλες}
-\author{Νίκος Γιανναράκης \and Ζωή Παρασκευοπούλου}
+\author{Νίκος Γιανναράκης \\ \and Ζωή Παρασκευοπούλου}
 
 \institute[]
 {
@@ -43,7 +47,6 @@
 Εθνικό Μετσόβιο Πολυτεχνείο
 }
 \date{\today}
-
 \begin{document}
 
 \begin{frame}
@@ -216,6 +219,14 @@ $P = \mathcal{O} \rightarrow k \cdot P = \mathcal{O}$
 %
 \begin{frame}
 \frametitle{Ανταλλαγή κλειδιού με τη μέθοδο Diffie-Hellman για ελλειπτικές καμπύλες (ECDH)}
+\begin{itemize}
+\item Ο χρήστης Α και ο χρήστης Β επιλέγουν δημόσια τις παραμέτρους $D = (q, a, b, G, n, h)$
+\item Ο χρήστης Α επιλέγει έναν τυχαίο αριθμό $1 \leq a \leq n -1$ υπολογίζει το $a \cdot G$ και το στέλνει στον B.
+\item Ο χρήστης Β επιλέγει έναν τυχαίο αριθμό $1 \leq b \leq n -1$ υπολογίζει το $b \cdot G$ και το στέλνει στον Α.
+\item Ο Α υπολογίζει το $a \cdot b \cdot G$
+\item  Ο Β υπολογίζει το $b \cdot a \cdot G$
+\item Το κοινό κλειδί τους είναι το $a \cdot b \cdot G = b \cdot a \cdot G$
+\end{itemize}
 \end{frame}
 
 %
@@ -223,7 +234,7 @@ $P = \mathcal{O} \rightarrow k \cdot P = \mathcal{O}$
 \frametitle{Ψηφιακές υπογραφές με τον αλγόριθμο DSA για ελλειπτικές καμπύλες (ECDSA)}
 \begin{block}
 {Παραγωγή υπογραφής}
-Για να υπογράψει ένα μήνυμα $m$, ο χρήστης Α με παραμέτρους $D = (q, FR, a, b, G, n, h)$ και ένα ζεύγος ιδιωτικού-δημόσιου κλειδιού $(d, Q)$ ακολουθεί τα παρακάτω βήματα
+Για να υπογράψει ένα μήνυμα $m$, ο χρήστης Α με παραμέτρους $D = (q, a, b, G, n, h)$ και ένα ζεύγος ιδιωτικού-δημόσιου κλειδιού $(d, Q)$ ακολουθεί τα παρακάτω βήματα
 \end{block}
 \end{frame}
 
@@ -367,7 +378,7 @@ The type of domain parameters
 \frametitle{Υλοποίηση στη γλώσσα OCaml}
 \begin{block}
 {Modulo αριθμητική}
-Χρησιμοποιήθηκε η βιβλιοθήκη μεγάλων αριθμών Zarith, χρησιμοποιεί το GMP (C/C++). Έτοιμες συναρτήσεις για πολλά προβλήματα όπως εύρεση αντιστρόφου ενός αριθμού $modulo \; n$. 
+Χρησιμοποιήθηκε η βιβλιοθήκη μεγάλων αριθμών Zarith, χρησιμοποιεί το GMP (C/C++). Διάφορες ετοιμες συναρτήσεις για βασικές πράξεις όπως εύρεση αντιστρόφου ενός αριθμού $modulo \; n$. 
 \end{block}
 \end{frame}
 
@@ -479,7 +490,12 @@ Given a point P on an elliptic curve, an integer k and the elliptic curve return
 \end{itemize}
 \end{block}
 \end{frame}
- 
+
+ \begin{frame}
+\frametitle{Παραγωγή τυχαίων αριθμών! \cite{PS3}}
+ \includegraphics[scale=0.7]{random_number.png}
+\end{frame}
+
 \begin{frame}
 \frametitle{References}
 \footnotesize{
@@ -518,7 +534,14 @@ Given a point P on an elliptic curve, an integer k and the elliptic curve return
 
  
 \begin{frame}
-\centerline{The End}
+\begin{block}
+{Fork here!}
+https://github.com/zoep/ECC-OCaml
+\end{block}
+\bigskip
+\begin{block}
+{The end}
+\end{block}
 \end{frame}
 % End of slides
 \end{document} 
