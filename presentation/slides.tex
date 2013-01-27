@@ -3,9 +3,15 @@
 \usecolortheme{beaver} % Simple and clean template
 \usepackage{amssymb,latexsym}
 \usepackage{xltxtra, xgreek}
+\usepackage[boxed]{algorithm2e}
+\usepackage{float}
+\usepackage{textcomp}
+\usepackage{url} 
+\usepackage{ocamldoc}
 
 \setsansfont[Mapping=tex-text]{CMU Concrete}
 \setmonofont{Courier New}
+\SetKw{Kwdto}{downto}
 
 %\usetheme{Boadilla} % Pretty neat, soft color.
 %\usetheme{default}
@@ -28,12 +34,12 @@
 %\usepackage{bm}         % For typesetting bold math (not \mathbold)
 %\logo{\includegraphics[height=0.6cm]{yourlogo.eps}}
 %
-\title[Elliptic Curve Cryptography]{Υλοποίηση αταλλαγής κλειδιού DH και ψηφιακών υπογραφών βασισμένη σε ελλειπτικές καμπύλες}
-\author{Νίκος Γιανναράκης\\ \and Ζωή Παρασκευοπούλου}
+\title[Elliptic Curve Cryptography]{Υλοποίηση ανταλλαγής κλειδιού DH και ψηφιακών υπογραφών βασισμένη σε ελλειπτικές καμπύλες}
+\author{Νίκος Γιανναράκης \and Ζωή Παρασκευοπούλου}
 
 \institute[]
 {
-Σχολή Ηλεκτρολόγων Μήχανικών και Μηχανικών Υπολογιστών\\
+Σχολή Ηλεκτρολόγων Μηχανικών και Μηχανικών Υπολογιστών\\
 Εθνικό Μετσόβιο Πολυτεχνείο
 }
 \date{\today}
@@ -43,19 +49,52 @@
 \begin{frame}
 \titlepage
 \end{frame}
-%$y^2 = x^3 + a \cdot x + b \; , \; x,y,a,b \in \mathcal{R}$
 \begin{frame}
 \frametitle{Κρυπτογραφία με ελλειπτικές καμπύλες}
 \begin{block}
 {Why elliptic curve cryptography?}
 \begin{itemize}
 \item Αυξημένη ασφάλεια με μικρότερα μεγέθη κλειδιών
-\item Μειωμένο υπολογιστικό κόστος
-\item Ιδανικές για φορητές συσκευές (κινητά κλπ.)
+\item Μειωμένο υπολογιστικό κόστος και bandwitdh
+\item Ιδανικές για φορητές συσκευές λόγω ενεργειακών απαιτήσεων (κινητά κλπ.)
+\item ECC σε secure web servers, επιτάχυνση εως και $280\%$ \cite{SUN}
 \end{itemize}
 \end{block}
 \end{frame}
+
 %
+\begin{frame}
+\frametitle{Σύγκριση μήκους κλειδιού}
+\begin{figure}
+\begin{center}
+\begin{tabular}{|l|l|l|l|} \hline
+\textbf{ECC} & \textbf{RSA} & \textbf{Αναλογία} & \textbf{AES} \\ \hline
+160 & 1024 & 1:6 & \\ \hline
+256 & 3072 & 1:12 & 128 \\ \hline
+384 & 7680 & 1:20 & 192 \\ \hline
+512 & 15360 & 1:30 & 256 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Σύγκριση μήκους κλειδιού σε bits}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{small}
+\begin{tabular}{|l|l|l|} \hline
+& \textbf{ECC-160 \hspace{1em} RSA-1024} & \textbf{ECC-224 \hspace{1em} RSA-2048}\\ \hline
+Time(ms) & \hspace{1em} 3.69 \hspace{4.5em} 8.75 & \hspace{1em} 5.12 \hspace{4.5em} 56.18 \\ \hline
+Ops/Sec  & \hspace{1em} 271.3 \hspace{4em} 114.3 & \hspace{1em} 195.5 \hspace{4.3em} 17.8 \\ \hline
+Perf ratio  & \hspace{3.5em} 2.4 : 1.0 & \hspace{3.5em} 11.0 : 1.0 \\ \hline
+Key ratio  & \hspace{3.5em} 1.0 : 6.4 & \hspace{3.5em} 1.0 : 9.1 \\ \hline
+\end{tabular}
+\end{small}
+\end{center}
+\caption{Σύγκριση απόδοσης ανάλογα με το μήκος κλειδιού \cite{SUN}}
+\end{figure}
+
+\end{frame}
+
 \begin{frame}
 \frametitle{Ελλειπτικές καμπύλες στο $\mathcal{R}$}
 \begin{block}
@@ -72,6 +111,7 @@ $$y^2 = x^3 + a \cdot x + b \; , \; x,y,a,b \in \mathcal{R}$$
 \end{itemize}
 \end{block}
 \end{frame}
+
 
 %
 \begin{frame}
@@ -120,6 +160,8 @@ H πρόσθεση δύο σημείων $R = P + Q$ σε μία ελλειπτ�
  & x_R = s^2 - x_P - x_Q \pmod p \\
  & y_R = -y_P + s \cdot (x_P - x_R) \pmod p
  \end{align*}
+ \medskip
+ Το $\mathcal{O}$ είναι το ουδέτερο στοιχείο της πρόσθεσης : $P + \mathcal{O} = P$.
 \end{frame}
 
 %
@@ -137,46 +179,343 @@ H πρόσθεση δύο σημείων $R = P + Q$ σε μία ελλειπτ�
 \begin{frame}
 \frametitle{Βαθμωτός πολλαπλασιασμός πάνω σε ελλειπτικές καμπύλες στο $\mathbb{F}_p$}
 Με χρήση των παραπάνω πράξεων μπορούμε να ορίσουμε την πράξη του βαθμωτού πολλαπλασιασμού $R = k \cdot P$ όπου $l \in \mathbb{Z}$ και $P$ ένα σημείο ελλειπτικής καμπύλης.
+$P = \mathcal{O} \rightarrow k \cdot P = \mathcal{O}$
 \begin{itemize}
 \item Naive $P + P  \ldots + P$
 \item Double-and-add (το ανάλογο του επαναλαμβανόμενου τετραγωνισμού)
-\item Windowed, Sliding-window, wNAF, Montogomery ladder $\ldots$ %Cite here
+\item Windowed, Sliding-window, wNAF, \\ Montogomery ladder $\ldots$ \cite{BERN}
 \end{itemize}
 \end{frame}
 
 %
-\begin{frame}[fragile] % Notice the [fragile] option %
-\frametitle{Verbatim}
-\begin{example}[Putting Verbatim]
-\begin{verbatim}
 \begin{frame}
-\frametitle{Outline}
-\begin{block}
-{Why Beamer?}
-Does anybody need an introduction to Beamer?
-I don't think so.
-\end{block}
-% Extra carriage return causes problem with verbatim %
-\end{frame}\end{verbatim} 
-\end{example}
+\frametitle{Double-and-add}
+\begin{algorithm}[H]
+\SetAlgoNoLine 
+ \KwIn{Elliptic curve $E$, elliptic curve point $P$, scalar $d$:  $(d_1 d_2 \ldots d_t)$ }
+ \KwOut{$T = d \cdot P$ }
+ $T \leftarrow P$ \\
+ \For{$i \leftarrow t -1$ \Kwdto $0$}{
+ 	$T \leftarrow T + T \pmod n$\\
+ 	\If{$d_i = 1$}{$T \leftarrow T + P \pmod n$}
+ } 
+ \KwRet{T}
+\caption{Μέθοδος double-and-add}
+\end{algorithm}
 \end{frame}
- 
-\begin{frame}[fragile]  % notice the fragile option, since the body
-			% contains a verbatim command
-Example of the \verb|\cite| command to give a reference is below:
-Example of citation using \cite{key1} follows on.
+
+%
+\begin{frame}
+\frametitle{Το πρόβλημα του διακριτού λογαρίθμου σε ελλειπτικές καμπύλες (ECDLP)}
+\begin{block}
+{Ορισμός}
+'Εστω ελλειπτική καμπύλη  στο $\mathbb{F}_p$ και έστω δύο σημεία αυτής $P,Q$. Αν η τάξη του $P$ είναι $n$ τότε το πρόβλημα διακριτού λογαρίθμου ορίζεται ως η εύρεση ενός ακεραίου $ 0 \leq l \leq n -1$ τέτοιου ώστε $Q = l \cdot P$.
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Ανταλλαγή κλειδιού με τη μέθοδο Diffie-Hellman για ελλειπτικές καμπύλες (ECDH)}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Ψηφιακές υπογραφές με τον αλγόριθμο DSA για ελλειπτικές καμπύλες (ECDSA)}
+\begin{block}
+{Παραγωγή υπογραφής}
+Για να υπογράψει ένα μήνυμα $m$, ο χρήστης Α με παραμέτρους $D = (q, FR, a, b, G, n, h)$ και ένα ζεύγος ιδιωτικού-δημόσιου κλειδιού $(d, Q)$ ακολουθεί τα παρακάτω βήματα
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Ψηφιακές υπογραφές με τον αλγόριθμο DSA για ελλειπτικές καμπύλες (ECDSA)}
+\begin{block}
+{Παραγωγή υπογραφής}
+\begin{small}
+\begin{enumerate}
+\item Επιλέγει έναν τυχαίο αριθμό $k$ τέτοιο ώστε $1 \leq k \leq n-1$.
+\item Υπολογίζει το σημείο $k \cdot G = (x_1, y_1)$.
+\item Υπολογίζει το $r = x_1 \pmod n$. Αν $r = 0$ επιστρέφει στο βήμα $1$.
+\item Υπολογίζει το $k^{-1} \pmod n$.
+\item Υπολογίζει το $SHA-1(m)$ και μετατρέπει το αποτέλεσμα του bit-string σε έναν ακέραιο $e$.
+\item Υπολογίζει το $s = k^{-1} \cdot (e + d \cdot r) \pmod n$. Αν $s = 0$ επιστρέφει στο βήμα $1$.
+\item Η υπογραφή του A για το μήνυμα $m$ είναι $(r,s)$.
+\end{enumerate}
+\end{small}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Ψηφιακές υπογραφές με τον αλγόριθμο DSA για ελλειπτικές καμπύλες (ECDSA)}
+\begin{block}
+{Επαλήθευση υπογραφής}
+Για να επαληθεύσει μία υπογραφή $(r,s)$ σε ένα μήνυμα $m$, ο χρήστης Β παίρνει τις παραμέτρους $D = (q, FR, a, b, G, n, h)$ και το δημόσιο κλειδί $Q$ του Α και ακολουθεί τα παρακάτω βήματα:
+\end{block}
+\alert{Προσοχή! Ο Β θα πρέπει να ελέγξει ότι τα στοιχεία του Α δεν έχουν αλλοιωθεί, π.χ. αν το σημείο Q ανήκει στην καμπύλη που ορίζεται απο το D}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Ψηφιακές υπογραφές με τον αλγόριθμο DSA για ελλειπτικές καμπύλες (ECDSA)}
+\begin{block}
+{Επαλήθευση υπογραφής}
+\begin{small}
+\begin{enumerate}
+\item Επιβεβαιώνει ότι τα $r,s$ είναι ακέραιοι στο διάστημα $[1, n-1]$.
+\item Υπολογίζει το $SHA-1(m)$ και μετατρέπει το αποτέλεσμα του bit-string σε έναν ακέραιο $e$.
+\item Υπολογίζει το $w = s^{-1} \pmod n$.
+\item Υπολογίζει το $u_1 = e \cdot w \pmod n$ και το $u_2 = r \cdot w \pmod n$.
+\item Υπολογίζει το $X = u_1 \cdot G + u_2 \cdot G$
+\item Εάν $X = \mathcal{O}$ τότε απορρίπτει την υπογραφή. Αλλιώς υπολογίζει τo $u = x_1 \pmod n$ όπου $x_1$ η συντεταγμένη $x$ του $X$. 
+\item Δέχεται την υπογραφή αν και μόνο αν $u = r$.
+\end{enumerate}
+\end{small}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Υλοποίηση}
+\begin{block}
+{Επιλογή παραμέτρων}
+\begin{figure}[!htbp]
+\begin{center}
+\begin{tabular}{|l|l|} \hline
+\textbf{Παράμετρος} & \textbf{Περιγραφή} \\ \hline
+p & Η χαρακτηριστική του πεπερασμένου σώματος $\mathbb{F}_p$ \\ \hline
+a & Ο συντελεστής a της ελλειπτικής καμπύλης \\ \hline
+b & Ο συντελεστής b της ελλειπτικής καμπύλης \\ \hline
+G & Ένα σημείο $G = (x_G, y_G)$  \\ \hline
+n & Η τάξη του στοιχείου $G$ \\ \hline
+h & $\sharp E(\mathbb{F}_p)/n$ \\ \hline
+\end{tabular} \\
+\end{center}
+\caption{Domain Parameters}
+\end{figure}
+\alert{Απαιτείται πολύ προσεκτική επιλογή των παραμέτρων} \cite{ECDSA} \cite{SEC2} \cite{BPOOL}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Υλοποίηση}
+\begin{block}
+{Επίπεδα υλοποίησης}
+\begin{itemize}
+\item Αριθμητική modulo με υποστήριξη για μεγάλους αριθμούς
+\item Υλοποίηση των πράξεων που ορίζονται στην ομάδα (πρόσθεση, διπλασιασμός)
+\item Υλοποίηση του βαθμωτού πολλαπλασιασμού
+\item Υλοποίηση ενός κρυπτοσυστήματος π.χ. ECDH 
+\end{itemize}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Υλοποίηση στη γλώσσα OCaml}
+\begin{block}
+{Why OCaml?}
+\begin{itemize}
+\item \textbf{Μείωση σφαλμάτων.} Έλεγχος τύπων κατά τη μεταγλώττιση.
+\item \textbf{Βιβλιοθήκες.} Αρκετές έτοιμες συναρτήσεις (για big numbers κ.α.)
+\item \textbf{Ταχύτητα.} Απόδοση αρκετά κοντά σε low-level γλώσσες όπως C.
+\item \textbf{Garbage collected.} Η διαχείριση μνήμης γίνεται αυτόματα, ένα πράγμα λιγότερο για να ανησυχούμε.
+\end{itemize}
+\end{block}
+\begin{flushright}
+\includegraphics[scale=0.7]{ocaml_logo.png}
+\end{flushright}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Υλοποίηση στη γλώσσα OCaml}
+\begin{block}
+{Βασικοί τύποι}
+\label{type:Ecc.Ecc.point}\begin{ocamldoccode}
+type point =
+   Infinity
+  | Point of Z.t * Z.t
+\end{ocamldoccode}
+\begin{ocamldocdescription}
+An elliptic curve point. It is either infinity or a point (x,y).
+\end{ocamldocdescription}
+\index{point@\verb`point`}
+
+
+\label{type:Ecc.Ecc.elliptic-underscorecurve}\begin{ocamldoccode}
+type elliptic\_curve = {\char123}\\
+  p : Z.t ;\\
+  a : Z.t ;\\
+  b : Z.t ;\\
+  g : point ;\\
+  n : Z.t ;\\
+  h : Z.t ;\\
+{\char125}
+\end{ocamldoccode}
+\index{elliptic-underscorecurve@\verb`elliptic_curve`}
+\begin{ocamldocdescription}
+The type of domain parameters
+\end{ocamldocdescription}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Υλοποίηση στη γλώσσα OCaml}
+\begin{block}
+{Modulo αριθμητική}
+Χρησιμοποιήθηκε η βιβλιοθήκη μεγάλων αριθμών Zarith, χρησιμοποιεί το GMP (C/C++). Έτοιμες συναρτήσεις για πολλά προβλήματα όπως εύρεση αντιστρόφου ενός αριθμού $modulo \; n$. 
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Υλοποίηση στη γλώσσα OCaml}
+\begin{block}
+{Υλοποίηση πράξεων ομάδας}
+\label{val:Ecc.Ecc.add-underscorepoint}\begin{ocamldoccode}
+val add\_point : point -> point -> elliptic\_curve -> point
+\end{ocamldoccode}
+\index{add-underscorepoint@\verb`add_point`}
+\begin{ocamldocdescription}
+Given two points P and Q, both on the same elliptic curve, and the elliptic curve returns P+Q on that curve.
+\end{ocamldocdescription}
+\label{val:Ecc.Ecc.double-underscorepoint}\begin{ocamldoccode}
+val double\_point : point -> elliptic\_curve -> point
+\end{ocamldoccode}
+\index{double-underscorepoint@\verb`double_point`}
+\begin{ocamldocdescription}
+Given a point P on an elliptic curve and the elliptic curve retuns the point 2P on that curve.
+\end{ocamldocdescription}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Υλοποίηση στη γλώσσα OCaml}
+\begin{block}
+{Υλοποίηση βαθμωτού πολλαπλασιασμού}
+\label{val:Ecc.Ecc.multiply-underscorepoint}\begin{ocamldoccode}
+val multiply\_point : point -> Z.t -> elliptic\_curve -> point
+\end{ocamldoccode}
+\index{multiply-underscorepoint@\verb`multiply_point`}
+\begin{ocamldocdescription}
+Given a point P on an elliptic curve, an integer k and the elliptic curve returns the scalar multiplication kP on that curve.
+\end{ocamldocdescription}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Βελτιστοποίησεις}
+\begin{block}
+{Βελτιστοποίηση αριθμητικής modulo}
+Το πιο χρονοβόρο κομμάτι είναι οι πράξεις με μεγάλους αριθμούς και η αριθμητική modulo. Η χρήση της βιβλιοθήκης Zarith μας λύνει το πρόβλημα βελτιστοποίησεις αυτού του κομματιού καθώς χρησιμοποιεί το GMP που έχει γρήγορες υλοποιήσεις πράξεων στη γλώσσα C.
+\end{block}
+\begin{block}
+{Βελτιστοποίηση πράξεων}
+Οι συναρτήσεις add\_point και double\_point δεν παρουσιάζουν ιδιαίτερα περιθώρια βελτιστοποίησης. Μπορούμε να βελτιστοποιήσουμε τη συνάρτηση multiply\_point χρησιμοποιώντας έναν καλύτερο αλγόριθμο από αυτούς που έχουν αναφερθεί (η υλοποίηση μας χρησιμοποιεί τη μέθοδο double-and-add)
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Επιθέσεις}
+\begin{itemize}
+\item Επίλυση ECDLP (πρακτικά ανέφικτο με κατάλληλη επιλογή παραμέτρων)
+\item Επίθεση στη συνάρτηση κατακερματισμού (hash function) εαν χρησιμοποιείται.
+\item  Κακή διαχείριση κλειδιών (private key, αριθμός $k$ στο ECDSA) κλπ.
+\end{itemize}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Επίλυση του ECDLP}
+\begin{block}
+{Certicom ECC Challenge}
+\begin{itemize}
+\item Στόχος είναι να βρεθούν τα ιδιωτικά κλειδιά απο μία δοθείσα λίστα με δημόσια κλειδιά και τις αντίστοιχες παραμέτρους.
+\item Επίπεδο 1 : 109-bit, 131-bit
+\item Επίπεδο 2 : 163-bit, 191-bit, 239-bit, 359-bit
+\item Το 2004 λύθηκε το πρόβλημα για τα 109-bit από $10000$ υπολογιστές σε 549 μέρες χρησιμοποιώντας τη μέθοδο rho. Για τα 131-bit όμως θα χρειαστούν σημαντικά περισσότεροι πόροι.
+\item Τα προβλήματα στο επίπεδο 2 θεωρούνται υπολογιστικά ανέφτικα.
+\end{itemize}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Επίθεση στο ECDSA}
+\begin{block}
+{Sony Playstation 3}
+Το playstation 3 χρησιμοποιεί το σχήμα ψηφιακής υπογραφής ECDSA για ψηφιακές υπογραφές στα παιχνίδια και στις αναβαθμίσεις του firmware του έτσι ώστε να μην επιτρέπεται σε unsigned κώδικα να εκτελεστεί στην κονσόλα.
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Επίθεση στο ECDSA}
+\begin{block}
+{Επιλογή τυχαίου αριθμού $k$}
+\begin{itemize}
+\item Ο τυχαίος αριθμός $k$ έχει τις ίδιες απαιτήσεις ασφάλειας με το ιδιωτικό κλειδί $d$. 
+\item Αυτό συνεπάγεται απο το γεγονός οτι αν ο κακόβουλος χρήστης Ε ανακτήσει ένα $k$ που χρησιμοποιεί ο Α για να υπογράψει ένα μήνυμα $m$ τότε μπορεί να ανακτήσει το προσωπικό κλειδί του A αφού $d = r^{-1} \cdot (k \cdot s - e) \pmod n$.
+\item Συνεπώς το $k$ θα πρέπει να παράγεται με ασφαλή τρόπο και να αποθηκεύεται με ασφαλή τρόπο.
+\end{itemize}
+\end{block}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Επίθεση στο ECDSA}
+\begin{block}
+{Sony Playstation 3 τρόπος επιλογής \textbf{τυχαίου} $k$}
+\begin{itemize}
+\item Η Sony δε παρήγαγε ποτέ τυχαίο $k$ αλλά χρησιμοποιούσε μία σταθερά για $k$
+\item Με τον τρόπο που δείξαμε παραπάνω υπολογίστηκε το private key της Sony και δόθηκε η δυνατότητα να κάνουμε sign ότι κώδικα θέλουμε. \cite{PS3}
+\end{itemize}
+\end{block}
 \end{frame}
  
 \begin{frame}
 \frametitle{References}
 \footnotesize{
 \begin{thebibliography}{99}
- \bibitem[Label1, 2010]{key1} Author's name (1987)
- \newblock Title of the paper.
- \newblock \emph{Journal Name} 55(4), 765 -- 799.
+ \bibitem[1]{ECDSA}  Don Johnson, Alfred Menezes, Scott Vanstone,
+ \newblock The Elliptic Curve Digital Signature Algorithm (ECDSA)
+ \newblock \emph{Certicom Research}
+  \bibitem[2]{SEC2} Certicom Research
+ \newblock SEC 2: Recommended Elliptic Curve Domain Parameters
+ \newblock \emph{Certicom Research}
+  \bibitem[3]{BERN}  Daniel J. Bernstein, Tanja Lange
+ \newblock Analysis and optimization of elliptic-curve single-scalar multiplication
+  \bibitem[4]{BPOOL} Brainpool
+ \newblock ECC Brainpool Standard Curves and Curve Generation v1.0
+ \newblock \emph{Brainpool}
 \end{thebibliography}
 }
 \end{frame}
+ 
+\begin{frame}
+\frametitle{References}
+\footnotesize{
+\begin{thebibliography}{99}
+  \bibitem[5]{PAAR}  Chrisoft Paar, Jan pelzl,
+ \newblock Understanding Cryptography: A textbook for Students and Practitioners
+ \newblock \emph{Springer}
+  \bibitem[6]{SUN}  Vipul Gupta, Douglas Stebila, Stephen Fung, Sheueling Chang, Nils Gura, Hans Eberle
+ \newblock Speeding up secure web transactions using elliptic curve cryptography
+ \newblock \emph{Sun Microsystems Labs}
+   \bibitem[7]{PS3}  bushing, marcan, sgher, sven
+ \newblock PS3 Epic Fail
+ \newblock \emph{fail0verflow}
+\end{thebibliography}
+}
+\end{frame}
+
  
 \begin{frame}
 \centerline{The End}
