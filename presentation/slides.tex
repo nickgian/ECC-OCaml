@@ -57,7 +57,7 @@
 \begin{block}
 {Why elliptic curve cryptography?}
 \begin{itemize}
-\item Αυξημένη ασφάλεια με μικρότερα μεγέθη κλειδιών
+\item Αυξημένη ασφάλεια με μικρότερα μήκη κλειδιών
 \item Μειωμένο υπολογιστικό κόστος και bandwitdh
 \item Ιδανικές για φορητές συσκευές λόγω ενεργειακών απαιτήσεων (κινητά κλπ.)
 \item ECC σε secure web servers, επιτάχυνση εως και $280\%$ \cite{SUN}
@@ -195,7 +195,7 @@ $P = \mathcal{O} \rightarrow k \cdot P = \mathcal{O}$
 \frametitle{Double-and-add}
 \begin{algorithm}[H]
 \SetAlgoNoLine 
- \KwIn{Elliptic curve $E$, elliptic curve point $P$, scalar $d$:  $(d_1 d_2 \ldots d_t)$ }
+ \KwIn{Elliptic curve $E$, elliptic curve point $P$, scalar $d$:  $(d_0 d_1 \ldots d_{t-1})$ }
  \KwOut{$T = d \cdot P$ }
  $T \leftarrow P$ \\
  \For{$i \leftarrow t -1$ \Kwdto $0$}{
@@ -221,8 +221,8 @@ $P = \mathcal{O} \rightarrow k \cdot P = \mathcal{O}$
 \frametitle{Ανταλλαγή κλειδιού με τη μέθοδο Diffie-Hellman για ελλειπτικές καμπύλες (ECDH)}
 \begin{itemize}
 \item Ο χρήστης Α και ο χρήστης Β επιλέγουν δημόσια τις παραμέτρους $D = (q, a, b, G, n, h)$
-\item Ο χρήστης Α επιλέγει έναν τυχαίο αριθμό $1 \leq a \leq n -1$ υπολογίζει το $a \cdot G$ και το στέλνει στον B.
-\item Ο χρήστης Β επιλέγει έναν τυχαίο αριθμό $1 \leq b \leq n -1$ υπολογίζει το $b \cdot G$ και το στέλνει στον Α.
+\item Ο χρήστης Α επιλέγει έναν τυχαίο αριθμό $1 \leq a \leq n -1$  ως ιδιωτικό κλειδί και υπολογίζει και στέλνει στον Β το δημόσιο κλειδί του $a \cdot G$.
+\item Ο χρήστης Β επιλέγει έναν τυχαίο αριθμό $1 \leq b \leq n -1$ ως ιδιωτικό κλειδί και υπολογίζει και στέλνει στον Α το δημόσιο κλειδί $b \cdot G$ και το στέλνει στον Α.
 \item Ο Α υπολογίζει το $a \cdot b \cdot G$
 \item  Ο Β υπολογίζει το $b \cdot a \cdot G$
 \item Το κοινό κλειδί τους είναι το $a \cdot b \cdot G = b \cdot a \cdot G$
@@ -473,7 +473,7 @@ Given a point P on an elliptic curve, an integer k and the elliptic curve return
 {Επιλογή τυχαίου αριθμού $k$}
 \begin{itemize}
 \item Ο τυχαίος αριθμός $k$ έχει τις ίδιες απαιτήσεις ασφάλειας με το ιδιωτικό κλειδί $d$. 
-\item Αυτό συνεπάγεται απο το γεγονός οτι αν ο κακόβουλος χρήστης Ε ανακτήσει ένα $k$ που χρησιμοποιεί ο Α για να υπογράψει ένα μήνυμα $m$ τότε μπορεί να ανακτήσει το προσωπικό κλειδί του A αφού $d = r^{-1} \cdot (k \cdot s - e) \pmod n$.
+\item Αυτό συνεπάγεται απο το γεγονός οτι αν ο κακόβουλος χρήστης Ε ανακτήσει ένα $k$ που χρησιμοποιεί ο Α για να υπογράψει ένα μήνυμα $m$ τότε μπορεί να ανακτήσει το ιδιωτικό κλειδί του A αφού $d = r^{-1} \cdot (k \cdot s - e) \pmod n$.
 \item Συνεπώς το $k$ θα πρέπει να παράγεται με ασφαλή τρόπο και να αποθηκεύεται με ασφαλή τρόπο.
 \end{itemize}
 \end{block}
@@ -492,7 +492,7 @@ Given a point P on an elliptic curve, an integer k and the elliptic curve return
 \end{frame}
 
  \begin{frame}
-\frametitle{Παραγωγή τυχαίων αριθμών! \cite{PS3}}
+\frametitle{Παραγωγή τυχαίων αριθμών!}
  \includegraphics[scale=0.7]{random_number.png}
 \end{frame}
 
@@ -500,15 +500,15 @@ Given a point P on an elliptic curve, an integer k and the elliptic curve return
 \frametitle{References}
 \footnotesize{
 \begin{thebibliography}{99}
- \bibitem[1]{ECDSA}  Don Johnson, Alfred Menezes, Scott Vanstone,
+ \bibitem[1]{ECDSA}  [1] Don Johnson, Alfred Menezes, Scott Vanstone,
  \newblock The Elliptic Curve Digital Signature Algorithm (ECDSA)
  \newblock \emph{Certicom Research}
-  \bibitem[2]{SEC2} Certicom Research
+  \bibitem[2]{SEC2} [2] Certicom Research
  \newblock SEC 2: Recommended Elliptic Curve Domain Parameters
  \newblock \emph{Certicom Research}
-  \bibitem[3]{BERN}  Daniel J. Bernstein, Tanja Lange
+  \bibitem[3]{BERN}  [3] Daniel J. Bernstein, Tanja Lange
  \newblock Analysis and optimization of elliptic-curve single-scalar multiplication
-  \bibitem[4]{BPOOL} Brainpool
+  \bibitem[4]{BPOOL} [4] Brainpool
  \newblock ECC Brainpool Standard Curves and Curve Generation v1.0
  \newblock \emph{Brainpool}
 \end{thebibliography}
@@ -519,13 +519,13 @@ Given a point P on an elliptic curve, an integer k and the elliptic curve return
 \frametitle{References}
 \footnotesize{
 \begin{thebibliography}{99}
-  \bibitem[5]{PAAR}  Chrisoft Paar, Jan pelzl,
+  \bibitem[5]{PAAR} [5] Chrisoft Paar, Jan pelzl,
  \newblock Understanding Cryptography: A textbook for Students and Practitioners
  \newblock \emph{Springer}
-  \bibitem[6]{SUN}  Vipul Gupta, Douglas Stebila, Stephen Fung, Sheueling Chang, Nils Gura, Hans Eberle
+  \bibitem[6]{SUN}  [6] Vipul Gupta, Douglas Stebila, Stephen Fung, Sheueling Chang, Nils Gura, Hans Eberle
  \newblock Speeding up secure web transactions using elliptic curve cryptography
  \newblock \emph{Sun Microsystems Labs}
-   \bibitem[7]{PS3}  bushing, marcan, sgher, sven
+   \bibitem[7]{PS3}  [7] bushing, marcan, sgher, sven
  \newblock PS3 Epic Fail
  \newblock \emph{fail0verflow}
 \end{thebibliography}
