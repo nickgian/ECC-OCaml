@@ -421,6 +421,51 @@ Given a point P on an elliptic curve, an integer k and the elliptic curve return
 
 %
 \begin{frame}
+\frametitle{Υλοποίηση στη γλώσσα OCaml}
+\begin{block}
+{Υλοποίηση δημιουργίας ζεύγους κλειδιών}
+\label{val:Ecc.Ecc.create-underscorekeys}\begin{ocamldoccode}
+val create\_keys : elliptic\_curve -> point * Z.t
+\end{ocamldoccode}
+\index{create-underscorekeys@\verb`create_keys`}
+\begin{ocamldocdescription}
+Creates a tuple (public\_key, secret\_key) where public\_key is a point of the curve and secret\_key an integer.
+\end{ocamldocdescription}
+\end{block}
+\end{frame}
+
+
+%
+\begin{frame}
+\frametitle{Υλοποίηση στη γλώσσα OCaml}
+\begin{block}
+{Υλοποίηση ψηφιακής υπογραφής}
+\label{val:Ecc.Ecc.sign}\begin{ocamldoccode}
+val sign : string -> Z.t -> elliptic\_curve -> Z.t * Z.t
+\end{ocamldoccode}
+\index{sign@\verb`sign`}
+\begin{ocamldocdescription}
+\textbf{Ecc.sign message sk curve} where sk is secret key of the user s and curve  the public elliptic curve, returns the signature (r, s) of the message.
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.verify}\begin{ocamldoccode}
+val verify : string -> Z.t * Z.t -> point -> elliptic\_curve -> bool
+\end{ocamldoccode}
+\index{verify@\verb`verify`}
+\begin{ocamldocdescription}
+\textbf{Ecc.verify message (r, s) pk curve} where pk is the public key of the user who signed the message, returns true if the (r, s) is a valid signature or false otherwise.
+\end{ocamldocdescription}
+
+\end{block}
+\end{frame}
+
+
+
+%
+\begin{frame}
 \frametitle{Βελτιστοποίησεις}
 \begin{block}
 {Βελτιστοποίηση αριθμητικής modulo}

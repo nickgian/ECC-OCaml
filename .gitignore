@@ -19,6 +19,7 @@
 *.*.gz
 *.toc
 *.vrb
+*.sty
 .depend.input
 .depend
 .DS_Store

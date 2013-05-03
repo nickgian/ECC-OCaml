@@ -1,0 +1,216 @@
+\documentclass[11pt]{article} 
+\usepackage[latin1]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage{textcomp}
+\usepackage{fullpage} 
+\usepackage{url} 
+\usepackage{ocamldoc}
+\begin{document}
+\tableofcontents
+\section{Module {\tt{Ecc}} : An elliptic curve point.}
+\label{module:Ecc}\index{Ecc@\verb`Ecc`}
+ It is either infinity or a point (x,y).
+
+
+
+\ocamldocvspace{0.5cm}
+
+
+
+\begin{ocamldoccode}
+{\tt{module }}{\tt{Ecc}}{\tt{ : }}\end{ocamldoccode}
+\label{module:Ecc.Ecc}\index{Ecc@\verb`Ecc`}
+
+\begin{ocamldocsigend}
+
+
+\label{type:Ecc.Ecc.point}\begin{ocamldoccode}
+type point =
+  | Infinity
+  | Point of Z.t * Z.t
+\end{ocamldoccode}
+\begin{ocamldoccomment}
+An elliptic curve point. It is either infinity or a point (x,y).
+\end{ocamldoccomment}
+\index{point@\verb`point`}
+
+
+\label{type:Ecc.Ecc.elliptic-underscorecurve}\begin{ocamldoccode}
+type elliptic_curve = {\char123}
+  p : Z.t ;
+  a : Z.t ;
+  b : Z.t ;
+  g : point ;
+  n : Z.t ;
+  h : Z.t ;
+{\char125}
+\end{ocamldoccode}
+\index{elliptic-underscorecurve@\verb`elliptic_curve`}
+\begin{ocamldocdescription}
+The type of domain parameters
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.inverse}\begin{ocamldoccode}
+val inverse : Z.t -> Z.t -> Z.t
+\end{ocamldoccode}
+\index{inverse@\verb`inverse`}
+\begin{ocamldocdescription}
+Ecc.inverse a n inverses the number a modulo n
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.verify-underscorerange}\begin{ocamldoccode}
+val verify_range : Z.t -> Z.t -> Z.t -> bool
+\end{ocamldoccode}
+\index{verify-underscorerange@\verb`verify_range`}
+\begin{ocamldocdescription}
+Ecc.verify\_range a l h returns true if l $\leq$ a $\leq$ h or false otherwise
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.is-underscorepoint}\begin{ocamldoccode}
+val is_point : point -> elliptic_curve -> bool
+\end{ocamldoccode}
+\index{is-underscorepoint@\verb`is_point`}
+\begin{ocamldocdescription}
+Returns true if a point belongs to an elliptic curve or false otherwise
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.double-underscorepoint}\begin{ocamldoccode}
+val double_point : point -> elliptic_curve -> point
+\end{ocamldoccode}
+\index{double-underscorepoint@\verb`double_point`}
+\begin{ocamldocdescription}
+Given a point P on an elliptic curve and the elliptic curve retuns the point 2P 
+        on that curve.
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.add-underscorepoint}\begin{ocamldoccode}
+val add_point : point -> point -> elliptic_curve -> point
+\end{ocamldoccode}
+\index{add-underscorepoint@\verb`add_point`}
+\begin{ocamldocdescription}
+Given two points P and Q, both on the same elliptic curve, and the elliptic curve returns 
+        P+Q on that curve.
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.multiply-underscorepoint}\begin{ocamldoccode}
+val multiply_point : point -> Z.t -> elliptic_curve -> point
+\end{ocamldoccode}
+\index{multiply-underscorepoint@\verb`multiply_point`}
+\begin{ocamldocdescription}
+Given a point P on an elliptic curve, an integer k and the elliptic curve returns 
+        the scalar multiplication kP on that curve.
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.integer-underscoreof-underscoreoctet}\begin{ocamldoccode}
+val integer_of_octet : string -> int
+\end{ocamldoccode}
+\index{integer-underscoreof-underscoreoctet@\verb`integer_of_octet`}
+
+
+\label{val:Ecc.Ecc.octList-underscoreof-underscoreoctStr}\begin{ocamldoccode}
+val octList_of_octStr : string -> string list
+\end{ocamldoccode}
+\index{octList-underscoreof-underscoreoctStr@\verb`octList_of_octStr`}
+
+
+\label{val:Ecc.Ecc.integer-underscoreof-underscoreoctStr}\begin{ocamldoccode}
+val integer_of_octStr : string -> Z.t
+\end{ocamldoccode}
+\index{integer-underscoreof-underscoreoctStr@\verb`integer_of_octStr`}
+
+
+\label{val:Ecc.Ecc.brainpool-underscoreP256-underscorer1}\begin{ocamldoccode}
+val brainpool_P256_r1 : elliptic_curve
+\end{ocamldoccode}
+\index{brainpool-underscoreP256-underscorer1@\verb`brainpool_P256_r1`}
+\begin{ocamldocdescription}
+An elliptic curve used for ECC as defined by Brainpool
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.test-underscorecurve}\begin{ocamldoccode}
+val test_curve : elliptic_curve
+\end{ocamldoccode}
+\index{test-underscorecurve@\verb`test_curve`}
+\begin{ocamldocdescription}
+An elliptic curve with small domain parameters for testing purposes
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.random-underscorebig-underscoreint}\begin{ocamldoccode}
+val random_big_int : Z.t -> Z.t
+\end{ocamldoccode}
+\index{random-underscorebig-underscoreint@\verb`random_big_int`}
+\begin{ocamldocdescription}
+Ecc.random\_big\_int bound returns a random integer in {\tt{1, bound-1}}
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.sign}\begin{ocamldoccode}
+val sign : string -> Z.t -> elliptic_curve -> Z.t * Z.t
+\end{ocamldoccode}
+\index{sign@\verb`sign`}
+\begin{ocamldocdescription}
+Ecc.sign message sk curve where sk is secret key of the user s and curve 
+       the public elliptic curve, returns the signature (r, s) of the message.
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.verify}\begin{ocamldoccode}
+val verify : string -> Z.t * Z.t -> point -> elliptic_curve -> bool
+\end{ocamldoccode}
+\index{verify@\verb`verify`}
+\begin{ocamldocdescription}
+Ecc.verify message (r, s) pk curve where pk is the public key of the user
+       who signed the message, returns true if the (r, s) is a valid
+       signature or false otherwise.
+
+
+\end{ocamldocdescription}
+
+
+\label{val:Ecc.Ecc.create-underscorekeys}\begin{ocamldoccode}
+val create_keys : elliptic_curve -> point * Z.t
+\end{ocamldoccode}
+\index{create-underscorekeys@\verb`create_keys`}
+\begin{ocamldocdescription}
+Creates a tuple (public\_key, secret\_key) where public\_key is a point of
+       the curve and secret\_key an integer.
+
+
+\end{ocamldocdescription}
+\end{ocamldocsigend}
+
+
+
+
+\end{document}
