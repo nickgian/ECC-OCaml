@@ -2,7 +2,8 @@ ECC-OCaml
 =========
 
 Elliptic Curves Cryptography for OCaml.
-This library provides the basic arethmetic operations in elliptic curves over finite prime fields (over finite bit filds comming soon :) as well as functions for digital signature algorithm and Diffie-Helleman key exchange protocol.
+This library provides the basic arithmetic operations in elliptic curves over finite prime fields (over finite bit fields coming soon :) 
+as well as functions for Elliptic Curve digital signature algorithm and Elliptic Curve Diffie-Hellman key exchange protocol.
 
 
 Dependencies
