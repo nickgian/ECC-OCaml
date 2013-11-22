@@ -1,4 +1,4 @@
-open Ecc
+open EccPrimitives
 
 module Ecdh =
   functor (F: FIELD) ->
@@ -27,7 +27,7 @@ module Ecdh =
           else
             create_keys curve
 
-   (** Creates a session key from the the party's public key and the user's 
+   (** Creates a session key from the other party's public key and the user's 
      * secret key *)
       
       let create_session_key pk sk curve = 

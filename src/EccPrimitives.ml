@@ -2,6 +2,7 @@ exception Error
 
 type point = Infinity | Point of Z.t * Z.t
 
+let () = Random.self_init ()
 
 let inverse (a : Z.t) (p : Z.t) =
   Z.(invert a p)
@@ -34,9 +35,9 @@ let integer_of_octStr str =
 
 (*Generating random ints with a maximum length of decimal numbers*)
 let rec random_big_int bound =
-  Random.self_init ();
   let max_size = String.length (Z.to_string bound) in
-  let size = 1 + Random.int (max_size - 1) in
+  let a = max (max_size/4) 1 
+  let size = a + Random.int (max_size - a) in
   let big_int = String.create size in
   let rand_str = 
     String.map (fun c -> let i = 48 + (Random.int 9) in Char.chr i) big_int 
@@ -155,16 +156,33 @@ struct
              normalize (Point (xf, yf)) curve
 
   (* Point multiplication is implemented using the double-and-add algorithm *)
-  let multiply_point (q : point) (d : Z.t) curve =
-    let d_binary = Z.format "%b" d in
-    let d_bits = String.sub d_binary 1 ((String.length d_binary) - 1) in
+  (*let multiply_point (q : point) (d : Z.t) curve =
+    let d_bits = Z.format "%b" d in
     let r = ref q in
       String.iter (fun di -> r := double_point (!r) curve;
                              match di with
                                | '0' -> ()
                                | '1' -> r := add_point (!r) (q) curve
                                | _ -> failwith "Not a bit") d_bits;
-      (!r)
+      (!r)*)
+
+  (* Point multiplication is implemented using montogomery ladders*)
+   let multiply_point q d curve =
+     let d_bits = Z.format "%b" d in
+     let r_0 = ref Infinity in
+     let r_1 = ref q in
+       String.iter (fun di ->
+                      if di = '0' then
+                        begin
+                          r_1 := add_point !r_0 !r_1 curve;
+                          r_0 := double_point !r_0 curve
+                        end
+                      else
+                        begin
+                          r_0 := add_point !r_0 !r_1 curve;
+                          r_1 := double_point !r_1 curve
+                        end) d_bits;
+       (!r_0)
 
   (* ECC data representation functions*)
 
@@ -195,5 +213,6 @@ struct
     Hashtbl.add curves "test_curve" test_curve;
 
 end;;
+
 
 

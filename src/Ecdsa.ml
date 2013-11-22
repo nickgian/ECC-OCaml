@@ -1,4 +1,4 @@
-open Ecc
+open EccPrimitives
 
 
 module Ecdsa = 
@@ -8,7 +8,7 @@ module Ecdsa =
     let rec sign m sk curve =
       let curve_n = F.get_n curve in
       let curve_g = F.get_g curve in
-      let k = Ecc.random_big_int curve_n in (* do we need to check that k is invertible ? *)
+      let k = random_big_int curve_n in (* do we need to check that k is invertible ? *)
         match F.multiply_point (curve_g) k curve with
           | Infinity -> sign m sk curve 
           | Point (x1, y1) ->

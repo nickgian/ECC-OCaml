@@ -1,11 +1,10 @@
 PACKAGES = zarith,sha
-MLFILES = Ecc.ml Ecdsa.ml Ecdh.ml
-MLIFILES = Ecc.mli Ecdsa.mli Ecdh.mli
+MLFILES = EccPrimitives.ml Ecdsa.ml Ecdh.ml
+MLIFILES = EccPrimitives.mli Ecdsa.mli Ecdh.mli
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLDEP = ocamldep
 OCAMLFIND = ocamlfind
-OCAMLMKLIB = ocamlmklib
 NAME = ecc
 
 OBJS = $(MLFILES:.ml=.cmo)
@@ -44,3 +43,4 @@ install: $(INSTALL)
 
 uninstall:
 	$(OCAMLFIND) remove $(NAME)
+
