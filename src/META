@@ -1,5 +1,5 @@
 description = "Elliptic Curve Cryptography primitives"
 requires = "zarith sha"
 version = "1.0"
-archive(byte) = "Ecc-lib.cma"
-archive(native) = "Ecc-lib.cmxa"
+archive(byte) = "ecc.cma"
+archive(native) = "ecc.cmxa"
