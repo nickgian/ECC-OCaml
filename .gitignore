@@ -20,6 +20,11 @@
 *.toc
 *.vrb
 *.sty
+*.a
+*.cma
+*.cmo
+*.o
+*.cmxa
 .depend.input
 .depend
 .DS_Store

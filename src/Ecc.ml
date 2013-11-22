@@ -1,20 +1,109 @@
-module Ecc =
+exception Error
+
+type point = Infinity | Point of Z.t * Z.t
+
+
+let inverse (a : Z.t) (p : Z.t) =
+  Z.(invert a p)
+
+let int_pow a b = truncate ((float_of_int a) ** (float_of_int b))  
+
+let integer_of_octet oct =
+ int_of_string (String.concat "" ["0x"; oct])
+
+let octList_of_octStr str =
+  let str_len = String.length str in
+  let rec aux i acc =
+    match i with
+      | -2 -> acc
+      | i -> aux (i - 2) ((String.sub str i 2) :: acc)
+  in
+    aux (str_len - 2) []
+
+let integer_of_octStr str =
+  let oct_list = octList_of_octStr str in
+  let m_len = (String.length str) / 2 in
+  let rec aux m i sum =
+    match m with
+      | [] -> sum
+      | m_i :: t -> 
+          let tmp = (int_pow 2 (8 * (m_len - 1 - i))) * (integer_of_octet m_i) in
+            aux t (i + 1) (Z.((~$ tmp) + sum))
+  in
+    aux oct_list 0 Z.zero
+
+(*Generating random ints with a maximum length of decimal numbers*)
+let rec random_big_int bound =
+  Random.self_init ();
+  let max_size = String.length (Z.to_string bound) in
+  let size = 1 + Random.int (max_size - 1) in
+  let big_int = String.create size in
+  let rand_str = 
+    String.map (fun c -> let i = 48 + (Random.int 9) in Char.chr i) big_int 
+  in
+  let num = Z.(one + (of_string rand_str)) in
+    match num < bound with
+      | true -> num
+      | false -> random_big_int bound
+
+let verify_range (num : Z.t) (lowbound : Z.t) (upbound : Z.t) =
+  (Z.(num >= lowbound) && Z.(num <= upbound))
+
+
+module type FIELD = 
+sig
+  type curve
+  (** The eliptic curve type *) 
+  
+  val lookup_curve : string -> curve
+  (** Returns the specified curve *)
+
+  val list_curves : unit -> string list
+  (** Returns a list with the available curves *)                          
+
+  val get_field : curve -> Z.t 
+  (** Returns an integer specifying the finite field (i.e. p for the prime field
+      Fp) *)                       
+  val get_g : curve -> point 
+  (** Returns the base point *)
+  val get_n : curve -> Z.t
+  (** Returns the order of the base point *)        
+
+  val is_point : point -> curve -> bool 
+  (** Check if a point lies on an eliptic curve *)
+  val double_point : point -> curve -> point 
+  (** Doubles a given point on a given eliptic curve *)
+  val add_point : point -> point -> curve -> point
+  (** Adds two given points on a given eliptic curve *)
+  val multiply_point : point -> Z.t -> curve -> point 
+  (** Scalar multiplication of a point and an integer on an elliptic curve *)
+end
+
+module PrimeField : FIELD =
 struct
-  type point = Infinity | Point of Z.t * Z.t
-  type elliptic_curve = {
+
+  type curve = {
     p : Z.t;
     a : Z.t;
     b : Z.t;
     g : point;
     n : Z.t;
     h : Z.t
-  }
+  }  
 
+  let curves = Hashtbl.create 13
 
-  (* Modular Arithmetic*)
+  let lookup_curve name = Hashtbl.find curves name
 
-  let inverse (a : Z.t) (p : Z.t) =
-    Z.(invert a p)
+  let list_curves () = 
+    Hashtbl.fold (fun k _ acc -> k :: acc) curves []
+
+  let get_field curve = curve.p
+
+  let get_g curve = curve.g
+
+  let get_n curve = curve.n                    
+                 
 
   (*Elliptic Curve Functions*)
 
@@ -33,52 +122,40 @@ struct
     match r with
       | Infinity -> true
       | Point (x, y) ->
-          Z.((y ** 2) mod curve.p) = Z.(((x ** 3) + (curve.a * x) + curve.b) mod curve.p)
+          let a = Z.((y ** 2) mod curve.p) in
+          let b = Z.(((x ** 3) + (curve.a * x) + curve.b) mod curve.p) in
+            a = b
 
-  let double_point (ec_point : point) curve =
+  let double_point (r : point) curve =
+    if not (is_point r curve) then raise Error;
     let p = curve.p in
-      match ec_point with
+      match r with
         | Infinity -> Infinity
+        | Point (x,y) when y = Z.zero -> Infinity
         | Point (x, y) ->
-            (match Z.(zero = y) with
-               | true -> Infinity
-               | false -> 
-                   let s = Z.(((((~$ 3) * (x ** 2)) + curve.a) * (inverse ((~$ 2) * y) p)) mod p) in
-                   let x_r = Z.(((s ** 2) - ((~$ 2) * x)) mod p) in
-                   let y_r = Z.((-y + (s * (x - x_r))) mod p) in
-                     normalize (Point (x_r, y_r)) curve)
+            let a = Z.(((((~$ 3) * (x ** 2))) + curve.a) mod p) in
+            let b = Z.((inverse (y + y) p) mod p) in
+            let s = Z.(a * b mod p) in
+            let x_r = Z.(((s ** 2) - (x + x)) mod p) in
+            let y_r = Z.((-y + (s * (x - x_r))) mod p) in
+              normalize (Point (x_r, y_r)) curve
 
-  let add_point (q : point) (r : point) curve =
+  let add_point (r1 : point) (r2 : point) curve =
+    if not ((is_point r1 curve) && (is_point r2 curve)) then raise Error;
     let p = curve.p in
-      match q,r with
-        | Infinity, Infinity -> Infinity
-        | _, Infinity -> q
-        | Infinity, _ -> r
-        | Point (x_q, y_q), Point (x_r, y_r) -> 
-            let s = Z.(((y_q - y_r) * (inverse (x_q - x_r) p)) mod p) in
-            let x_f = Z.(((s ** 2) - x_q - x_r) mod p) in
-            let y_f = Z.((s * (x_q - x_f) - y_q) mod p) in
-              match (y_f = Z.zero) with
-                | true -> Infinity
-                | false -> normalize (Point (x_f, y_f)) curve
+     match r1, r2 with
+       | _, Infinity -> r1
+       | Infinity, _ -> r2
+       | Point (x1, y1), Point (x2, y2) when x1 = x2 -> Infinity
+       | r1, r2 when r1 = r2 -> double_point r1 curve
+       | Point (x1, y1), Point (x2, y2) ->
+           let s = Z.(((y2 - y1) * (inverse (x2 - x1) p)) mod p) in
+           let xf = Z.(((s ** 2) - x1 - x2) mod p) in
+           let yf = Z.((s * (x1 - xf) - y1) mod p) in
+             normalize (Point (xf, yf)) curve
 
-  (*Point multiplication using double-and-add method*)
-  (*let multiply_point (q : point) (d : Z.t) (curve : elliptic_curve) =
-   let rec multiply_aux d r =
-   match (d = Z.zero) || (d = Z.one) with
-   | true -> r
-   | false ->
-   let t = double_point r curve in
-   ( 
-   match ((Z.logand d (Z.one)) = Z.one) with
-   | true -> multiply_aux (Z.(d asr 1)) (add_point t q curve)
-   | false -> multiply_aux (Z.(d asr 1)) t 
-   )
-   in
-   multiply_aux d q
-   *)
-
-  let multiply_point (q : point) (d : Z.t) (curve : elliptic_curve) =
+  (* Point multiplication is implemented using the double-and-add algorithm *)
+  let multiply_point (q : point) (d : Z.t) curve =
     let d_binary = Z.format "%b" d in
     let d_bits = String.sub d_binary 1 ((String.length d_binary) - 1) in
     let r = ref q in
@@ -91,31 +168,6 @@ struct
 
   (* ECC data representation functions*)
 
-  let int_pow a b = truncate ((float_of_int a) ** (float_of_int b))  
-
-  let integer_of_octet oct =
-    int_of_string (String.concat "" ["0x"; oct])
-
-  let octList_of_octStr str =
-    let str_len = String.length str in
-    let rec aux i acc =
-      match i with
-        | -2 -> acc
-        | i -> aux (i - 2) ((String.sub str i 2) :: acc)
-    in
-      aux (str_len - 2) []
-
-  let integer_of_octStr str =
-    let oct_list = octList_of_octStr str in
-    let m_len = (String.length str) / 2 in
-    let rec aux m i sum =
-      match m with
-        | [] -> sum
-        | m_i :: t -> 
-            let tmp = (int_pow 2 (8 * (m_len - 1 - i))) * (integer_of_octet m_i) in
-              aux t (i + 1) (Z.((~$ tmp) + sum))
-    in
-      aux oct_list 0 Z.zero
 
   (* Recommended Elliptic Curve Domain Parameters*)
 
@@ -131,83 +183,17 @@ struct
       h = Z.one
     }
 
-  let test_curve = {p = Z.(~$ 23); a = Z.(~$ 9); b = Z.(~$ 17); g = Point (Z.(~$ 9), Z.(~$ 5)); n = Z.(~$ 22); h = Z.(~$ 0);};;
+  let test_curve = {p = Z.(~$ 23); 
+                    a = Z.(~$ 9);
+                    b = Z.(~$ 17); 
+                    g = Point (Z.(~$ 9), Z.(~$ 5)); 
+                    n = Z.(~$ 22); 
+                    h = Z.(~$ 0);};;
 
-  (*Generating random ints with a maximum length of decimal numbers*)
-  let rec random_big_int bound =
-    Random.self_init ();
-    let max_size = String.length (Z.to_string bound) in
-    let size = 1 + Random.int (max_size - 1) in
-    let big_int = String.create size in
-    let rand_str = String.map (fun c -> 
-                                 let i = 48 + (Random.int 9) in Char.chr i) big_int in
-    let num = Z.(one + (of_string rand_str)) in
-      match num < bound with
-        | true -> num
-        | false -> random_big_int bound
+  let () = 
+    Hashtbl.add curves "brainpool_P256_r1" brainpool_P256_r1;
+    Hashtbl.add curves "test_curve" test_curve;
 
-  (* ECDSA*)
-
-  let rec sign m sk curve =
-    let k = random_big_int curve.n in
-      match (try Some (Z.invert k curve.n) with division_by_zero -> None) with
-        | None -> sign m sk curve
-        | Some inv_k ->
-            let kG = multiply_point (curve.g) k curve in
-              (match kG with 
-                 | Infinity -> sign m sk curve
-                 | Point (x1, y1) ->
-                     let r = Z.(x1 mod curve.n) in
-                       (match (r = Z.zero) with
-                          | true -> sign m sk curve
-                          | false -> 
-                              let hash_m = Digest.to_hex (Digest.string m) in
-                              let e = Z.of_string_base 16 hash_m in
-                              let s = Z.((inv_k * (e + sk * r)) mod (curve.n)) in
-                                (match (s = Z.zero) with
-                                   | true -> sign m sk curve
-                                   | false -> 
-                                       (match Z.((gcd s curve.n) = Z.one) with
-                                          | true -> (r, s)
-                                          | false -> sign m sk curve
-                                       ))))
-
-  let verify_range (num : Z.t) (lowbound : Z.t) (upbound : Z.t) =
-    (Z.(num >= lowbound) && Z.(num <= upbound))
-
-  let verify m (r, s) pk curve =
-    match (verify_range r Z.one Z.(curve.n - one), verify_range s Z.one Z.(curve.n - one)) with
-      | (true, true) ->
-          let hash_m = Digest.to_hex (Digest.string m) in
-          let e = Z.of_string_base 16 hash_m in
-          let w = Z.invert s curve.n in
-          let u1 = Z.((e*w) mod curve.n) in 
-          let u2 = Z.((r*w) mod curve.n) in
-          let u1G = multiply_point curve.g u1 curve in
-          let u2Q = multiply_point pk u2 curve in
-          let x = add_point u1G u2Q curve in
-            (match x with
-               | Infinity -> false
-               | Point (x1, y1) -> Z.((x1 mod curve.n) = r))
-      | (_, _) -> false
-
-
-(*Create public and secret key*)
-
-let rec create_keys curve = 
-  let sk = random_big_int curve.n in
-  let pk = multiply_point (curve.g) sk curve in
-    match pk with
-      | Infinity -> failwith "infinity\n"
-      | Point (pk_x, pk_y) -> 
-          begin
-            match is_point (Point (pk_x, pk_y)) curve with
-              | true -> 
-                  (Point (pk_x, pk_y), sk)
-              | false -> 
-                  failwith "false\n"
-          end
 end;;
-
 
 

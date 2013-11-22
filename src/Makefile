@@ -1,53 +1,46 @@
-LIBS =
-PACKAGES = zarith
-SOURCES = Ecc.ml register_dh.ml exchange_dh.ml sign.ml verify.ml
-EXEC = register_dh exchange_dh sign verify
-CAMLC = ocamlc
-CAMLOPT = ocamlopt
-CAMLDEP = ocamldep
-CAMLF = ocamlfind
+PACKAGES = zarith,sha
+MLFILES = Ecc.ml Ecdsa.ml Ecdh.ml
+MLIFILES = Ecc.mli Ecdsa.mli Ecdh.mli
+OCAMLC = ocamlc
+OCAMLOPT = ocamlopt
+OCAMLDEP = ocamldep
+OCAMLFIND = ocamlfind
+OCAMLMKLIB = ocamlmklib
+NAME = ecc
 
-SMLIY = $(SOURCES:.mly=.ml)
-SMLIYL = $(SMLIY:.mll=.ml)
-SMLYL = $(filter %.ml,$(SMLIYL))
-OBJS = $(SMLYL:.ml=.cmo)
-OPTOBJS = $(OBJS:.cmo=.cmx)
+OBJS = $(MLFILES:.ml=.cmo)
+CMIS = $(MLIFILES:.mli=.cmi)
+CMAS = $(MLFILES:.ml=.cma)
+OPTOBJS = $(MLFILES:.ml=.cmx)
+INSTALL= META $(NAME).a $(NAME).cma $(NAME).cmxa $(CMIS) $(MLIS)
 
-all: $(OPTOBJS)
-	$(CAMLF) $(CAMLOPT) -o register_dh $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx register_dh.cmx
-	$(CAMLF) $(CAMLOPT) -o exchange_dh $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx exchange_dh.cmx
-	$(CAMLF) $(CAMLOPT) -o sign $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx sign.cmx
-	$(CAMLF) $(CAMLOPT) -o verify $(LIBS:.cma=.cmxa) -package $(PACKAGES) -linkpkg Ecc.cmx verify.cmx
+default: depend $(NAME) 
 
-.SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly 
+$(NAME): $(OBJS) $(OPTOBJS)
+	$(OCAMLC) -a -o $@.cma $(OBJS)
+	$(OCAMLOPT) -a -o $@.cmxa $(OPTOBJS)
 
-.ml.cmo:
-	$(CAMLF) $(CAMLC) -c $(LIBS) -package $(PACKAGES) -linkpkg $<
+%.cmi: %.mli
+	$(OCAMLFIND) $(OCAMLC) -package $(PACKAGES) -c $< -o $@
 
-.mli.cmi:
-	$(CAMLF) $(CAMLC) -c $(LIBS) -package $(PACKAGES) -linkpkg $<
+%.cmo: %.ml
+	$(OCAMLFIND) $(OCAMLC) -package $(PACKAGES) -c $< -o $@
 
-.ml.cmx:
-	$(CAMLF) $(CAMLOPT) -c $(LIBS) -package $(PACKAGES) -linkpkg $<
+%.cmx: %.ml
+	$(OCAMLFIND) $(OCAMLOPT) -package $(PACKAGES) -c $< -o $@
 
-clean::
-	rm -f *.cm[iox] *~ .*~ #*#
-	rm -f $(EXEC)
-	rm -f *.o
-	rm -f $(EXEC).opt
 
-.depend.input: Makefile
-	@echo -n '--Checking Ocaml input files: '
-	@(ls $(SMLIY) $(SMLIY:.ml=.mli) 2>/dev/null || true) \
-	     >  .depend.new
-	@diff .depend.new .depend.input 2>/dev/null 1>/dev/null && \
-	    (echo 'unchanged'; rm -f .depend.new) || \
-	    (echo 'changed'; mv .depend.new .depend.input)
+clean:
+	rm -f *.cm[ioxa] *~ .*~ *.o *.a #*#
+	rm -f *.cmxa
 
-depend: .depend
+-include .depend
 
-.depend:: $(SMLIY) .depend.input
-	@echo '--Re-building dependencies'
-	$(CAMLDEP) $(SMLIY) $(SMLIY:.ml=.mli) > .depend
+depend: $(MLFILES) $(MLIFILES)
+	$(OCAMLDEP) $^ > .depend
 
-include .depend
+install: $(INSTALL)
+	$(OCAMLFIND) install $(NAME) $(INSTALL)
+
+uninstall:
+	$(OCAMLFIND) remove $(NAME)
