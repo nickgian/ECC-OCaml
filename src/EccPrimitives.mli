@@ -1,10 +1,10 @@
 exception Error
+type octet = string
+val integer_of_octet : string -> Z.t
 type point = Infinity | Point of Z.t * Z.t
+val of_octet : string -> Z.t -> Z.t -> Z.t -> point
 val inverse : Z.t -> Z.t -> Z.t
 val int_pow : int -> int -> int
-val integer_of_octet : string -> int
-val octList_of_octStr : string -> string list
-val integer_of_octStr : string -> Z.t
 val random_big_int : Z.t -> Z.t
 val verify_range : Z.t -> Z.t -> Z.t -> bool
 module type FIELD =
@@ -27,6 +27,9 @@ module type FIELD =
     val get_n : curve -> Z.t
     (** Returns the order of the base point *)  
                            
+    val get_a : curve -> Z.t
+    val get_b : curve -> Z.t
+
     val is_point : point -> curve -> bool
     (** Check if a point lies on an eliptic curve *)
                                        
