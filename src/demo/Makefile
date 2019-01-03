@@ -1,4 +1,4 @@
-PACKAGES = ecc
+PACKAGES = zarith,sha,ecc
 ECDSADEMO = ecdsademo.ml
 ECDHDEMO = ecdhdemo.ml
 OCAMLC = ocamlc

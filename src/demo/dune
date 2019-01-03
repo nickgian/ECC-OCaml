@@ -1,0 +1,3 @@
+(tests
+  (names ecdsademo ecdhdemo)
+  (libraries ecc))

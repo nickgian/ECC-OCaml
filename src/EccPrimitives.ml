@@ -5,7 +5,7 @@ type octet = string
 let integer_of_octet oct =
   Z.of_string (String.concat "" ["0x"; oct])
 
-type point = Infinity | Point of Z.t * Z.t 
+type point = Infinity | Point of Z.t * Z.t ;;
 
 (* assumes q : prime WON'T WORK WITH Binary fields *)
 let of_octet octstr q a b = 
@@ -32,9 +32,9 @@ let of_octet octstr q a b =
     end
 
 let () = Random.self_init ()
-
+       
 let inverse (a : Z.t) (p : Z.t) =
-  Z.(invert a p)
+  Z.(invert a p) 
 
 let int_pow a b = truncate ((float_of_int a) ** (float_of_int b))  
 
@@ -44,18 +44,17 @@ let rec random_big_int bound =
   let max_size = String.length (Z.to_string bound) in
   let a = max (max_size/4) 1 in 
   let size = a + Random.int (max_size - a) in
-  let big_int = String.create size in
+  let big_int = Bytes.create size in
   let rand_str = 
-    String.map (fun c -> let i = 48 + (Random.int 9) in Char.chr i) big_int 
+    Bytes.map (fun c -> let i = 48 + (Random.int 9) in Char.chr i) big_int 
   in
-  let num = Z.(one + (of_string rand_str)) in
+  let num = Z.(one + of_string(Bytes.to_string rand_str)) in
     match num < bound with
       | true -> num
       | false -> random_big_int bound
 
 let verify_range (num : Z.t) (lowbound : Z.t) (upbound : Z.t) =
   (Z.(num >= lowbound) && Z.(num <= upbound))
-
 
 module type FIELD = 
 sig
@@ -227,6 +226,4 @@ struct
     Hashtbl.add curves "test_curve" test_curve;
 
 end;;
-
-
 
