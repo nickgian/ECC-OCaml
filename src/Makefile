@@ -46,11 +46,11 @@ install: $(INSTALL)
 uninstall:
 	$(OCAMLFIND) remove $(NAME)
 
-run:
+test:
 	make
 	make uninstall
 	make install
-	cd test && make build
-	cd test && make test
+	cd demo && make build
+	cd demo && make test
 	make clean
 	make uninstall
