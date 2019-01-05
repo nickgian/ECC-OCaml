@@ -5,7 +5,7 @@ type octet = string
 let integer_of_octet oct =
   Z.of_string (String.concat "" ["0x"; oct])
 
-type point = Infinity | Point of Z.t * Z.t ;;
+type point = Infinity | Point of Z.t * Z.t
 
 (* assumes q : prime WON'T WORK WITH Binary fields *)
 let of_octet octstr q a b = 
@@ -203,7 +203,7 @@ struct
   (* Recommended Elliptic Curve Domain Parameters*)
 
   (* http://www.ecc-brainpool.org/download/Domain-parameters.pdf *)
-  let brainpool_P256_r1 =
+  let brainpoolp256r1 =
     {
       p = Z.of_string_base 16 "A9FB57DBA1EEA9BC3E660A909D838D726E3BF623D52620282013481D1F6E5377";
       a = Z.of_string_base 16 "7D5A0975FC2C3057EEF67530417AFFE7FB8055C126DC5C6CE94A4B44F330B5D9";
@@ -221,8 +221,21 @@ struct
                     n = Z.(~$ 22); 
                     h = Z.(~$ 0);};;
 
+  let secp256k1 =
+    {
+      p = Z.of_string_base 16 "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F";
+      a = Z.zero;
+      b = Z.of_string_base 16 "0000000000000000000000000000000000000000000000000000000000000007";
+      g = Point (Z.of_string_base 16 "79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798",
+                 Z.of_string_base 16 "483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8");
+      n = Z.of_string_base 16 "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141";
+      h = Z.one
+    }
+
+  
   let () = 
-    Hashtbl.add curves "brainpool_P256_r1" brainpool_P256_r1;
+    Hashtbl.add curves "brainpoolp256r1" brainpoolp256r1;
+    Hashtbl.add curves "secp256k1" secp256k1;
     Hashtbl.add curves "test_curve" test_curve;
 
 end;;

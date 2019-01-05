@@ -32,6 +32,8 @@ $(NAME): $(OBJS) $(OPTOBJS)
 clean:
 	rm -f *.cm[ioxa] *~ .*~ *.o *.a #*#
 	rm -f *.cmxa
+	rm -rf _build
+	dune clean
 
 -include .depend
 
@@ -44,3 +46,11 @@ install: $(INSTALL)
 uninstall:
 	$(OCAMLFIND) remove $(NAME)
 
+run:
+	make
+	make uninstall
+	make install
+	cd test && make build
+	cd test && make test
+	make clean
+	make uninstall

@@ -5,7 +5,7 @@ open Ecdsa
 module DH = Ecdh (PrimeField)
 module DSA = Ecdsa (PrimeField)
 
-let curve = PrimeField.lookup_curve "brainpool_P256_r1"
+let curve = PrimeField.lookup_curve "brainpoolp256r1"
 
 let (bob_pk, bob_sk) = DH.create_keys curve
 let (alice_pk, alice_sk) = DH.create_keys curve

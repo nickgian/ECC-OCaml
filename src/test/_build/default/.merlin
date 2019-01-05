@@ -1,0 +1,10 @@
+EXCLUDE_QUERY_DIR
+B /Users/mb/.opam/default/lib/ecc
+B /Users/mb/.opam/default/lib/sha
+B /Users/mb/.opam/default/lib/zarith
+B _build/default/.test.eobjs
+S /Users/mb/.opam/default/lib/ecc
+S /Users/mb/.opam/default/lib/sha
+S /Users/mb/.opam/default/lib/zarith
+S .
+FLG -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs
