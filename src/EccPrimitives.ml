@@ -6,6 +6,17 @@ let integer_of_octet oct =
   Z.of_string (String.concat "" ["0x"; oct])
 
 type point = Infinity | Point of Z.t * Z.t
+                                         
+let string_of_point_uncompressed (p : point) : string = match p with
+  | Infinity -> "0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  | Point (x, y) -> String.concat ""
+                      ["04" ; Z.format "%x" x ; Z.format "%x" y]
+
+let string_of_point_compressed (p : point) : string = match p with
+  | Infinity -> "0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  | Point (x, y) -> if (Z.rem y (Z.of_int 2)) = Z.zero
+    then String.concat "" ["02" ; Z.format "%x" x]
+    else String.concat "" ["03" ; Z.format "%x" x]
 
 (* assumes q : prime WON'T WORK WITH Binary fields *)
 let of_octet octstr q a b = 

@@ -2,6 +2,9 @@ exception Error
 type octet = string
 val integer_of_octet : string -> Z.t
 type point = Infinity | Point of Z.t * Z.t
+val string_of_point_uncompressed : point -> string
+val string_of_point_compressed : point -> string
+
 val of_octet : string -> Z.t -> Z.t -> Z.t -> point
 val inverse : Z.t -> Z.t -> Z.t
 val int_pow : int -> int -> int

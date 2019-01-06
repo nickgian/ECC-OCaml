@@ -5,4 +5,8 @@ module Ecdh :
       val create_keys : F.curve -> EccPrimitives.point * Z.t
       val create_session_key :
         EccPrimitives.point -> Z.t -> F.curve -> string
+      val pubkey_of_seckey :
+        F.curve -> Z.t -> EccPrimitives.point
+
+        
     end

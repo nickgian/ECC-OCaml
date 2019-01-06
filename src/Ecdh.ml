@@ -36,7 +36,10 @@ module Ecdh =
           | Infinity -> raise Error
           | Point(x, _) -> 
             Sha1.to_hex (Sha1.string (Z.to_string x))
-
+              
+    (** Creates public key from secret key *)
+    let pubkey_of_seckey curve sk =
+      F.multiply_point (F.get_g curve) sk curve
   end;;
 
 

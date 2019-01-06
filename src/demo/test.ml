@@ -5,7 +5,7 @@ open Ecdsa
 module DH = Ecdh (PrimeField)
 module DSA = Ecdsa (PrimeField)
 
-let curve = PrimeField.lookup_curve "brainpoolp256r1"
+let curve = PrimeField.lookup_curve "secp256k1"
 
 
 let (bob_pk, bob_sk) = DH.create_keys curve
@@ -34,4 +34,13 @@ let main2 =
     else
       Printf.printf "We failed bob and alice\n"
 ;;
-let main = main1 ;; main2
+
+let main3 =
+  let sk = Z.of_string_base 16 "18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725" in
+  let pk = EccPrimitives.string_of_point_compressed (DH.pubkey_of_seckey curve sk) in
+      Printf.printf "%s\n" pk
+      
+;;
+
+
+let main = main1 ;; main2 ;; main3
