@@ -6,17 +6,64 @@ let integer_of_octet oct =
   Z.of_string (String.concat "" ["0x"; oct])
 
 type point = Infinity | Point of Z.t * Z.t
-                                         
-let string_of_point_uncompressed (p : point) : string = match p with
+
+
+
+
+let charlist_to_string cl = String.concat "" (List.map (String.make 1) cl)
+let charlist_of_string s = List.init (String.length s) (String.get s)
+
+
+
+let hexchar_to_int c = match c with
+  | '0'..'9' -> int_of_char c - 48
+  | 'a'..'f' -> int_of_char c - 87
+  | 'A'..'F' -> int_of_char c - 55
+  | _ -> raise Error
+
+let hexchar_of_int i = match i>9 with
+  | false -> char_of_int (i + 48)
+  | true -> char_of_int (i + 87)
+
+let hexstring_to_string s =
+  let cl = charlist_of_string s in
+  let rec go l =
+    match l with
+    | [] -> []
+    | [_] -> []
+    | x :: y :: xs -> char_of_int ((hexchar_to_int x * 16) + hexchar_to_int y) :: go xs
+  in charlist_to_string (go cl) 
+
+let hexstring_of_string s =
+  let cl = charlist_of_string s in
+  let rec go l =
+    match l with
+    | [] -> []
+    | x :: xs -> hexchar_of_int (int_of_char x / 16) :: hexchar_of_int (int_of_char x mod 16) :: go xs
+  in charlist_to_string (go cl)
+
+
+
+let string_of_point_uncompressed p = match p with
   | Infinity -> "0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   | Point (x, y) -> String.concat ""
                       ["04" ; Z.format "%x" x ; Z.format "%x" y]
 
-let string_of_point_compressed (p : point) : string = match p with
+(* test 
+   18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725 ->
+   0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352 ->
+   0b7c28c9b7290c98d7438e70b3d3f7c848fbd7d1dc194ff83f4f7cc9b1378e98 ->
+   
+*)
+let string_of_point_compressed p = match p with
   | Infinity -> "0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   | Point (x, y) -> if (Z.rem y (Z.of_int 2)) = Z.zero
     then String.concat "" ["02" ; Z.format "%x" x]
     else String.concat "" ["03" ; Z.format "%x" x]
+
+let bytes_of_point_uncompressed p = hexstring_to_string (string_of_point_uncompressed p)
+let bytes_of_point_compressed p = hexstring_to_string (string_of_point_compressed p)
+
 
 (* assumes q : prime WON'T WORK WITH Binary fields *)
 let of_octet octstr q a b = 
