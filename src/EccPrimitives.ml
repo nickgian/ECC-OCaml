@@ -53,7 +53,7 @@ let string_of_point_uncompressed p = match p with
    18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725 ->
    0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352 ->
    0b7c28c9b7290c98d7438e70b3d3f7c848fbd7d1dc194ff83f4f7cc9b1378e98 ->
-   
+
 *)
 let string_of_point_compressed p = match p with
   | Infinity -> "0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
@@ -74,23 +74,30 @@ let of_octet octstr q a b =
       let len = String.length @@ Z.format "%b" q in
       let octets = Z.(div (~$ len) (~$ 8)) in
       let tmp = Z.((~$ 2) * octets) in
-        if Z.(tmp + one) = Z.(of_int num_octets) then
-          let w = String.sub octstr 0 2 in
-          let x = String.sub octstr 2 (Z.to_int tmp) in
-          let y = String.sub octstr ((Z.to_int tmp) + 1) (Z.to_int tmp) in
-            if w = "04" then
-              let x_p = integer_of_octet x in
-              let y_p = integer_of_octet y in
-              let v1 = Z.((x_p ** 2) mod q) in
-              let v2 = Z.(((x_p ** 3) + (a * x_p) + b) mod q) in
-                if v1 = v2 then Point (x_p, y_p)
-                else raise Error
-            else raise Error
+      if Z.(tmp + one) = Z.(of_int num_octets) then
+        let w = String.sub octstr 0 2 in
+        let x = String.sub octstr 2 (Z.to_int tmp) in
+        let y = String.sub octstr ((Z.to_int tmp) + 1) (Z.to_int tmp) in
+        if w = "04" then
+          let x_p = integer_of_octet x in
+          let y_p = integer_of_octet y in
+          let v1 = Z.((x_p ** 2) mod q) in
+          let v2 = Z.(((x_p ** 3) + (a * x_p) + b) mod q) in
+          if v1 = v2 then Point (x_p, y_p)
+          else raise Error
         else raise Error
+      else raise Error
     end
 
+let neg_mod a p =
+  let r = Z.(a mod p) in 
+  if Z.(r < zero) then
+    Z.(r+p)
+  else  
+    r
+
 let () = Random.self_init ()
-       
+
 let inverse (a : Z.t) (p : Z.t) =
   Z.(invert a p) 
 
@@ -107,9 +114,9 @@ let rec random_big_int bound =
     Bytes.map (fun c -> let i = 48 + (Random.int 9) in Char.chr i) big_int 
   in
   let num = Z.(one + of_string(Bytes.to_string rand_str)) in
-    match num < bound with
-      | true -> num
-      | false -> random_big_int bound
+  match num < bound with
+  | true -> num
+  | false -> random_big_int bound
 
 let verify_range (num : Z.t) (lowbound : Z.t) (upbound : Z.t) =
   (Z.(num >= lowbound) && Z.(num <= upbound))
@@ -181,79 +188,79 @@ struct
 
   let normalize (r : point) curve =
     let p = curve.p in
-    let normalize_aux (x : Z.t) =
+    let rec normalize_aux (x : Z.t) =
       match x with
-        | x when Z.(x < zero) -> Z.(p + x)
-        | x -> x
+      | x when Z.(x < zero) -> normalize_aux Z.(p + x)
+      | x -> x
     in
-      match r with
-        | Infinity -> Infinity
-        | Point (x_r, y_r) -> Point (normalize_aux x_r, normalize_aux y_r) 
+    match r with
+    | Infinity -> Infinity
+    | Point (x_r, y_r) -> Point (normalize_aux x_r, normalize_aux y_r) 
 
   let is_point (r : point) curve =
     match r with
-      | Infinity -> true
-      | Point (x, y) ->
-        let a = Z.((y ** 2) mod curve.p) in
-        let b = Z.(((x ** 3) + (curve.a * x) + curve.b) mod curve.p) in
-          a = b
+    | Infinity -> true
+    | Point (x, y) ->
+      let a = Z.((y ** 2) mod curve.p) in
+      let b = Z.(((x ** 3) + (curve.a * x) + curve.b) mod curve.p) in
+      a = b
 
   let double_point (r : point) curve =
     if not (is_point r curve) then raise Error;
     let p = curve.p in
-      match r with
-        | Infinity -> Infinity
-        | Point (x,y) when y = Z.zero -> Infinity
-        | Point (x, y) ->
-          let a = Z.(((((~$ 3) * (x ** 2))) + curve.a) mod p) in
-          let b = Z.((inverse (y + y) p) mod p) in
-          let s = Z.(a * b mod p) in
-          let x_r = Z.(((s ** 2) - (x + x)) mod p) in
-          let y_r = Z.((-y + (s * (x - x_r))) mod p) in
-            normalize (Point (x_r, y_r)) curve
+    match r with
+    | Infinity -> Infinity
+    | Point (x,y) when y = Z.zero -> Infinity
+    | Point (x, y) ->
+      let a = Z.(((((~$ 3) * (x ** 2))) + curve.a) mod p) in
+      let b = Z.((inverse (y + y) p) mod p) in
+      let s = Z.(a * b mod p) in
+      let x_r = Z.(((s ** 2) - (x + x)) mod p) in
+      let y_r = Z.((-y + (s * (x - x_r))) mod p) in
+      normalize (Point (x_r, y_r)) curve
 
   let add_point (r1 : point) (r2 : point) curve =
     if not ((is_point r1 curve) && (is_point r2 curve)) then raise Error;
     let p = curve.p in
-      match r1, r2 with
-        | _, Infinity -> r1
-        | Infinity, _ -> r2
-        | Point (x1, y1), Point (x2, y2) when x1 = x2 -> Infinity
-        | r1, r2 when r1 = r2 -> double_point r1 curve
-        | Point (x1, y1), Point (x2, y2) ->
-          let s = Z.(((y2 - y1) * (inverse (x2 - x1) p)) mod p) in
-          let xf = Z.(((s ** 2) - x1 - x2) mod p) in
-          let yf = Z.((s * (x1 - xf) - y1) mod p) in
-            normalize (Point (xf, yf)) curve
+    match r1, r2 with
+    | _, Infinity -> r1
+    | Infinity, _ -> r2
+    | r1, r2 when r1 = r2 -> double_point r1 curve
+    | Point (x1, y1), Point (x2, y2) when x1 = x2 -> Infinity
+    | Point (x1, y1), Point (x2, y2) ->
+      let s = Z.(((y2 - y1) * (inverse (x2 - x1) p)) mod p) in
+      let xf = Z.(((s ** 2) - x1 - x2) mod p) in
+      let yf = Z.((s * (x1 - xf) - y1) mod p) in
+      normalize (Point (xf, yf)) curve
 
   (* Point multiplication is implemented using the double-and-add algorithm *)
-  (*let multiply_point (q : point) (d : Z.t) curve =
-    let d_bits = Z.format "%b" d in
-    let r = ref q in
-      String.iter (fun di -> r := double_point (!r) curve;
-                             match di with
-                               | '0' -> ()
-                               | '1' -> r := add_point (!r) (q) curve
-                               | _ -> failwith "Not a bit") d_bits;
-      (!r)*)
+  let multiply_point (p : point) (d : Z.t) curve =
+    let d_bits = Z.format "%b" (neg_mod d (get_n curve)) in
+    let q = ref Infinity in 
+    String.iter (fun di -> 
+        q := double_point !q curve;
+        if di =  '1' then
+          q := add_point !q p curve
+        else ()) d_bits;
+    !q
 
-  (* Point multiplication is implemented using montogomery ladders*)
-  let multiply_point q d curve =
-    let d_bits = Z.format "%b" d in
-    let r_0 = ref Infinity in
-    let r_1 = ref q in
-      String.iter (fun di ->
-          if di = '0' then
-            begin
-              r_1 := add_point !r_0 !r_1 curve;
-              r_0 := double_point !r_0 curve
-            end
-          else
-            begin
-              r_0 := add_point !r_0 !r_1 curve;
-              r_1 := double_point !r_1 curve
-            end) d_bits;
-      (!r_0)
+  (* Point multiplication is implemented using montogomery ladders
+     let multiply_point q d curve =
+     let d_bits = Z.format "%b" d in
+     let r_0 = ref Infinity in
+     let r_1 = ref q in
+     String.iter (fun di ->
+        if di = '0' then
+          begin
+            r_1 := add_point !r_0 !r_1 curve;
+            r_0 := double_point !r_0 curve
+          end
+        else
+          begin
+            r_0 := add_point !r_0 !r_1 curve;
+            r_1 := double_point !r_1 curve
+          end) d_bits;
+     (!r_0)*)
 
   (* ECC data representation functions*)
 
@@ -275,8 +282,8 @@ struct
   let test_curve = {p = Z.(~$ 23); 
                     a = Z.(~$ 9);
                     b = Z.(~$ 17); 
-                    g = Point (Z.(~$ 9), Z.(~$ 5)); 
-                    n = Z.(~$ 22); 
+                    g = Point (Z.(~$ 15), Z.(~$ 13)); 
+                    n = Z.(~$ 32); 
                     h = Z.(~$ 0);};;
 
   let secp256k1 =
@@ -290,7 +297,7 @@ struct
       h = Z.one
     }
 
-  
+
   let () = 
     Hashtbl.add curves "brainpoolp256r1" brainpoolp256r1;
     Hashtbl.add curves "secp256k1" secp256k1;

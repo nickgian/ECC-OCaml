@@ -1,4 +1,4 @@
-PACKAGES = zarith,sha,cryptokit
+PACKAGES = zarith,sha
 MLFILES = EccPrimitives.ml Ecdsa.ml Ecdh.ml
 MLIFILES = EccPrimitives.mli Ecdsa.mli Ecdh.mli
 OCAMLC = ocamlc
