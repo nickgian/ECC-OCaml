@@ -16,42 +16,50 @@ val hexstring_of_string          : string -> string
 val of_octet : string -> Z.t -> Z.t -> Z.t -> point
 val inverse : Z.t -> Z.t -> Z.t
 val int_pow : int -> int -> int
+val neg_mod : Z.t -> Z.t -> Z.t 
 val random_big_int : Z.t -> Z.t
 val verify_range : Z.t -> Z.t -> Z.t -> bool
 module type FIELD =
-  sig
-    type curve
-    (** The eliptic curve type *) 
-    val lookup_curve : string -> curve
-    (** Returns the specified curve *)
+sig
+  type curve = {
+    p : Z.t;
+    a : Z.t;
+    b : Z.t;
+    g : point;
+    n : Z.t;
+    h : Z.t;
+  }
+  (** The eliptic curve type *) 
+  val lookup_curve : string -> curve
+  (** Returns the specified curve *)
 
-    val list_curves : unit -> string list
-    (** Returns a list with the available curves *)  
+  val list_curves : unit -> string list
+  (** Returns a list with the available curves *)  
 
-    val get_field : curve -> Z.t
-    (** Returns an integer specifying the finite field (i.e. p for
-        the prime field Fp) *) 
-                               
-    val get_g : curve -> point
-    (** Returns the base point *)
+  val get_field : curve -> Z.t
+  (** Returns an integer specifying the finite field (i.e. p for
+      the prime field Fp) *) 
 
-    val get_n : curve -> Z.t
-    (** Returns the order of the base point *)  
-                           
-    val get_a : curve -> Z.t
-    val get_b : curve -> Z.t
+  val get_g : curve -> point
+  (** Returns the base point *)
 
-    val is_point : point -> curve -> bool
-    (** Check if a point lies on an eliptic curve *)
-                                       
-    val double_point : point -> curve -> point
-    (** Doubles a given point on a given eliptic curve *)
+  val get_n : curve -> Z.t
+  (** Returns the order of the base point *)  
 
-    val add_point : point -> point -> curve -> point
-    (** Adds two given points on a given eliptic curve *)
+  val get_a : curve -> Z.t
+  val get_b : curve -> Z.t
 
-    val multiply_point : point -> Z.t -> curve -> point
-    (** Scalar multiplication of a point and an integer on an elliptic curve *)
+  val is_point : point -> curve -> bool
+  (** Check if a point lies on an eliptic curve *)
 
-  end
+  val double_point : point -> curve -> point
+  (** Doubles a given point on a given eliptic curve *)
+
+  val add_point : point -> point -> curve -> point
+  (** Adds two given points on a given eliptic curve *)
+
+  val multiply_point : point -> Z.t -> curve -> point
+  (** Scalar multiplication of a point and an integer on an elliptic curve *)
+
+end
 module PrimeField : FIELD

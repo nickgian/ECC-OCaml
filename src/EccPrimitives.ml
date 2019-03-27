@@ -18,7 +18,7 @@ let charlist_of_string s = List.init (String.length s) (String.get s)
 let hexchar_to_int c = match c with
   | '0'..'9' -> int_of_char c - 48
   | 'a'..'f' -> int_of_char c - 87
-  | 'A'..'F' -> int_of_char c - 55
+  | 'A'..'F' -> int_of_char c - 55 
   | _ -> raise Error
 
 let hexchar_of_int i = match i>9 with
@@ -64,7 +64,6 @@ let string_of_point_compressed p = match p with
 let bytes_of_point_uncompressed p = hexstring_to_string (string_of_point_uncompressed p)
 let bytes_of_point_compressed p = hexstring_to_string (string_of_point_compressed p)
 
-
 (* assumes q : prime WON'T WORK WITH Binary fields *)
 let of_octet octstr q a b = 
   if octstr = "00" then Infinity
@@ -89,6 +88,14 @@ let of_octet octstr q a b =
       else raise Error
     end
 
+
+let () = Random.self_init ()
+
+let inverse (a : Z.t) (p : Z.t) =
+  Z.(invert a p) 
+
+let int_pow a b = truncate ((float_of_int a) ** (float_of_int b))
+
 let neg_mod a p =
   let r = Z.(a mod p) in 
   if Z.(r < zero) then
@@ -96,34 +103,36 @@ let neg_mod a p =
   else  
     r
 
-let () = Random.self_init ()
-
-let inverse (a : Z.t) (p : Z.t) =
-  Z.(invert a p) 
-
-let int_pow a b = truncate ((float_of_int a) ** (float_of_int b))  
-
-
 (*Generating random ints with a maximum length of decimal numbers*)
 let rec random_big_int bound =
-  let max_size = String.length (Z.to_string bound) in
-  let a = max (max_size/4) 1 in 
-  let size = a + Random.int (max_size - a) in
-  let big_int = Bytes.create size in
-  let rand_str = 
-    Bytes.map (fun c -> let i = 48 + (Random.int 9) in Char.chr i) big_int 
+  let rec aux i acc = 
+    if i = 0 then
+      acc
+    else 
+      let b = Random.int 2 in
+      aux (i-1) (acc ^ string_of_int b) 
   in
-  let num = Z.(one + of_string(Bytes.to_string rand_str)) in
-  match num < bound with
+  let size = 
+    String.length (Z.format "%b" bound)
+  in
+  let num = Z.of_string (aux size "0b") in
+  match num < bound || num = Z.zero with
   | true -> num
-  | false -> random_big_int bound
+  | false -> random_big_int bound 
 
 let verify_range (num : Z.t) (lowbound : Z.t) (upbound : Z.t) =
   (Z.(num >= lowbound) && Z.(num <= upbound))
 
 module type FIELD = 
 sig
-  type curve
+  type curve = {
+    p : Z.t;
+    a : Z.t;
+    b : Z.t;
+    g : point;
+    n : Z.t;
+    h : Z.t;
+  }
   (** The eliptic curve type *) 
 
   val lookup_curve : string -> curve
@@ -163,8 +172,8 @@ struct
     b : Z.t;
     g : point;
     n : Z.t;
-    h : Z.t
-  }  
+    h : Z.t;
+  } 
 
   let curves = Hashtbl.create 13
 
@@ -183,7 +192,6 @@ struct
 
   let get_b curve = curve.b                   
 
-
   (*Elliptic Curve Functions*)
 
   let normalize (r : point) curve =
@@ -196,6 +204,11 @@ struct
     match r with
     | Infinity -> Infinity
     | Point (x_r, y_r) -> Point (normalize_aux x_r, normalize_aux y_r) 
+
+  let inverse_point point curve = 
+    match point with
+      Infinity -> Infinity
+    | Point(x,y) -> normalize (Point(x, Z.(-y))) curve
 
   let is_point (r : point) curve =
     match r with
@@ -233,16 +246,51 @@ struct
       let yf = Z.((s * (x1 - xf) - y1) mod p) in
       normalize (Point (xf, yf)) curve
 
+  let mods k w =
+    if Z.(k mod w) >= Z.( w / ~$2) then 
+      Z.((k mod w) - w)
+    else
+      Z.(k mod w)
+
+  let w_naf k w = 
+    let rec aux d acc =
+      if d <= Z.zero then 
+        acc
+      else
+        begin
+          if Z.(d mod ~$2) = Z.one then
+            let ki = mods d Z.(~$2 ** w) in
+            aux Z.((d-ki) / ~$2) (ki :: acc)
+          else
+            aux Z.(d / ~$2) (Z.zero :: acc) 
+        end 
+    in 
+    aux k []
+
   (* Point multiplication is implemented using the double-and-add algorithm *)
   let multiply_point (p : point) (d : Z.t) curve =
-    let d_bits = Z.format "%b" (neg_mod d (get_n curve)) in
-    let q = ref Infinity in 
-    String.iter (fun di -> 
+    (*let d_bits = Z.format "%b" (neg_mod d (get_n curve)) in
+      let q = ref Infinity in 
+      String.iter (fun di -> 
         q := double_point !q curve;
         if di =  '1' then
           q := add_point !q p curve
         else ()) d_bits;
-    !q
+      !q*)
+    let rec aux q = function
+      | [] -> q 
+      | ki :: t -> 
+        let q2 = double_point q curve in 
+        if ki <> Z.zero then
+          if ki > Z.zero then 
+            aux (add_point q2 p curve) t 
+          else 
+            aux (add_point q2 (inverse_point p curve) curve) t
+        else aux q2 t 
+    in
+    let d = neg_mod d (get_n curve) in
+    let w_naf_list = w_naf d 2 in  
+    aux Infinity w_naf_list
 
   (* Point multiplication is implemented using montogomery ladders
      let multiply_point q d curve =
@@ -279,12 +327,12 @@ struct
       h = Z.one
     }
 
-  let test_curve = {p = Z.(~$ 23); 
-                    a = Z.(~$ 9);
-                    b = Z.(~$ 17); 
-                    g = Point (Z.(~$ 15), Z.(~$ 13)); 
-                    n = Z.(~$ 32); 
-                    h = Z.(~$ 0);};;
+  let test_curve = {p = Z.(~$ 31); 
+                    a = Z.of_string "-7";
+                    b = Z.(~$ 10); 
+                    g = Point (Z.(~$ 0), Z.(~$ 17)); 
+                    n = Z.(~$ 37); 
+                    h = Z.(~$ 1);};;
 
   let secp256k1 =
     {
@@ -297,10 +345,21 @@ struct
       h = Z.one
     }
 
+  let curve25519 = 
+    {
+      p = Z.of_string_base 16 "7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED";
+      a = Z.(~$ 486662);
+      b = Z.(~$ 1);
+      g = Point (Z.of_string_base 16 "9",
+                 Z.of_string_base 16 "20AE19A1B8A086B4E01EDD2C7748D14C923D4D7E6D7C61B229E9C5A27ECED3D9");
+      n = Z.of_string_base 16 "1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED";
+      h = Z.one
+    }
 
   let () = 
     Hashtbl.add curves "brainpoolp256r1" brainpoolp256r1;
     Hashtbl.add curves "secp256k1" secp256k1;
+    Hashtbl.add curves "curve25519" curve25519;
     Hashtbl.add curves "test_curve" test_curve;
 
 end;;

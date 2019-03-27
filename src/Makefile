@@ -11,7 +11,7 @@ OBJS = $(MLFILES:.ml=.cmo)
 CMIS = $(MLIFILES:.mli=.cmi)
 CMAS = $(MLFILES:.ml=.cma)
 OPTOBJS = $(MLFILES:.ml=.cmx)
-INSTALL= META $(NAME).a $(NAME).cma $(NAME).cmxa $(CMIS) $(MLIS)
+INSTALL= META $(NAME).a $(NAME).cma $(NAME).cmxa $(CMIS) $(MLIS) $(OPTOBJS)
 
 default: depend $(NAME) 
 
