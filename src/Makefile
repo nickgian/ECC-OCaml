@@ -1,6 +1,6 @@
 PACKAGES = zarith,sha
-MLFILES = EccPrimitives.ml Ecdsa.ml Ecdh.ml
-MLIFILES = EccPrimitives.mli Ecdsa.mli Ecdh.mli
+MLFILES = EccPrimitives.ml Secp256k1.ml Ecdsa.ml Ecdh.ml
+MLIFILES = EccPrimitives.mli Secp256k1.mli Ecdsa.mli Ecdh.mli
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLDEP = ocamldep
