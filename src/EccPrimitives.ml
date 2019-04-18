@@ -71,7 +71,7 @@ let rec random_big_int bound =
   | false -> random_big_int bound 
 
 let verify_range (num : Z.t) (lowbound : Z.t) (upbound : Z.t) =
-  (Z.(num >= lowbound) && Z.(num <= upbound))
+  num >= lowbound && num <= upbound
 
 
 let charlist_to_string cl = 
@@ -127,7 +127,7 @@ let bytes_of_point_uncompressed p =
 let bytes_of_point_compressed p = 
   hexstring_to_string (string_of_point_compressed p)
 
-(** Auxiliary fuction for m*)
+(* Auxiliary fuction for m*)
 let mods k w =
   if Z.(k mod w) >= Z.( w / ~$2) then 
     Z.((k mod w) - w)
@@ -170,23 +170,23 @@ let return_point p  pc_p  ki =
 module type Specs = sig 
 
   type t
-  (** The eliptic curve type *)
+  (* The eliptic curve type *)
   val curve : t
-  (** The eliptic curve variable *)
+  (* The eliptic curve variable *)
 
   val field : Z.t 
-  (** Returns an integer specifying the finite field (i.e. p for the prime field
+  (* Returns an integer specifying the finite field (i.e. p for the prime field
       Fp) *)                       
   val g : point 
-  (** Returns the base point *)
+  (* Returns the base point *)
   val n : Z.t
-  (** Returns the order of the base point *)
+  (* Returns the order of the base point *)
   val a : Z.t
-  (** Returns the variable a of the eliptic curve equation *)
+  (* Returns the variable a of the eliptic curve equation *)
   val b : Z.t    
-  (** Returns the variable b of the eliptic curve equation *)
+  (* Returns the variable b of the eliptic curve equation *)
   val points : point list
-  (** Returns the point list used to pre-compute points to use on 
+  (* Returns the point list used to pre-compute points to use on 
       multiply_point algorithm  *)
 
 end
@@ -194,37 +194,37 @@ end
 module type Curve = sig 
 
   val get_field : Z.t 
-  (** Returns an integer specifying the finite field (i.e. p for the prime field
+  (* Returns an integer specifying the finite field (i.e. p for the prime field
       Fp) *)                       
   val get_g : point 
-  (** Returns the base point *)
+  (* Returns the base point *)
   val get_n : Z.t
-  (** Returns the order of the base point *)
+  (* Returns the order of the base point *)
   val get_a : Z.t
-  (** Returns the variable a of the eliptic curve equation *)
+  (* Returns the variable a of the eliptic curve equation *)
   val get_b : Z.t    
-  (** Returns the variable b of the eliptic curve equation *)
+  (* Returns the variable b of the eliptic curve equation *)
   val get_points : point list
-  (** Returns the point list used to pre-compute points to use on 
+  (* Returns the point list used to pre-compute points to use on 
       multiply_point algorithm  *)
   val is_point : point -> bool
-  (** Check if a point lies on an eliptic curve *)
+  (* Check if a point lies on an eliptic curve *)
   val inverse_point : point -> point
-  (** Given a point P returns the point -P *)
+  (* Given a point P returns the point -P *)
   val double_point : point -> point
-  (** Doubles a given point on a given eliptic curve *)
+  (* Doubles a given point on a given eliptic curve *)
   val add_point : point -> point -> point
-  (** Adds two given points on a given eliptic curve *)
+  (* Adds two given points on a given eliptic curve *)
   val double_and_add : point -> Z.t -> point
-  (** Point multiplication with the double-and-add algorithm *)
+  (* Point multiplication with the double-and-add algorithm *)
   val montogomery_ladders : point -> Z.t -> point 
-  (** Point multiplication is implemented using montogomery ladders *)
+  (* Point multiplication is implemented using montogomery ladders *)
   val multiply_point : point -> Z.t -> point
   (* Point multiplication is implemented using the 
      w-ary non-adjacent form (wNAF) algorithm *)
   val multiscalar_mul : 
     point -> Z.t list -> point list -> point 
-    (** inner product of a scalar vector and a point vector *)
+    (* inner product of a scalar vector and a point vector *)
 
 end 
 
@@ -273,7 +273,7 @@ struct
     let p = get_field in
     match r with
     | Infinity -> Infinity
-    | Point (x,y) when y = Z.zero -> Infinity
+    | Point (_,y) when y = Z.zero -> Infinity
     | Point (x, y) ->
       let a = Z.(((((~$ 3) * (x ** 2))) + get_a) mod p) in
       let b = Z.((inverse (y + y) p) mod p) in
@@ -289,7 +289,7 @@ struct
     | _, Infinity -> r1
     | Infinity, _ -> r2
     | r1, r2 when r1 = r2 -> double_point r1
-    | Point (x1, y1), Point (x2, y2) when x1 = x2 -> Infinity
+    | Point (x1, _), Point (x2, _) when x1 = x2 -> Infinity
     | Point (x1, y1), Point (x2, y2) ->
       let s = Z.(((y2 - y1) * (inverse (x2 - x1) p)) mod p) in
       let xf = Z.(((s ** 2) - x1 - x2) mod p) in
@@ -321,7 +321,7 @@ struct
   let () = 
     pre_computation get_g;
     List.iter ( fun p -> pre_computation p) points
-  (** pre-compute points for the point multiplication, 
+  (* pre-compute points for the point multiplication, 
       implemented with the algorithm wNAF. 
       For window = 5 pre-compute the points {1,3,5,7,9,11,13,15} *)
 
