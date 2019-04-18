@@ -5,19 +5,19 @@ module Secp256k1 = Make_Curve
       type t = 
         {
           p : Z.t;
-          (** p for the prime field Fp*)
+          (* p for the prime field Fp*)
           a : Z.t;
-          (** variable a of the eliptic curve equation *)
+          (* variable a of the eliptic curve equation *)
           b : Z.t;
-          (** variable b of the eliptic curve equation *)
+          (* variable b of the eliptic curve equation *)
           g : point;
-          (** the base point *)
+          (* the base point *)
           n : Z.t;
-          (** order of the base point *) 
+          (* order of the base point *) 
           h : Z.t;
-          (**  cofactor of the base point *)
+          (*  cofactor of the base point *)
           points : point list 
-          (** the point list used to pre-compute points to use on 
+          (* the point list used to pre-compute points to use on 
               multiply_point algorithm *) 
         }
 
@@ -294,7 +294,6 @@ module Secp256k1 = Make_Curve
       let field = curve.p 
       let g = curve.g 
       let n = curve.n
-      let h = curve.h 
       let a = curve.a 
       let b = curve.b 
       let points = curve.points

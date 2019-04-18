@@ -11,7 +11,7 @@ module Ecdsa =
       let k = random_big_int curve_n in (* do we need to check that k is invertible ? *)
       match multiply_point curve_g k with
       | Infinity -> sign m sk 
-      | Point (x1, y1) ->
+      | Point (x1, _) ->
         let r = Z.(x1 mod curve_n) in
         if r = Z.zero then sign m sk 
         else 
@@ -38,6 +38,6 @@ module Ecdsa =
         let x = add_point u1G u2Q in
         (match x with
          | Infinity -> false
-         | Point (x1, y1) -> Z.((x1 mod curve_n) = r))
+         | Point (x1, _) -> Z.((x1 mod curve_n) = r))
       | (_, _) -> false
   end

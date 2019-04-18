@@ -4,7 +4,7 @@ module Ecdh =
   functor (C: Curve) -> 
   struct 
     open C
-    (** Check that the public key is a valid public key*)
+    (* Check that the public key is a valid public key*)
     let validate_pkey pk =
       match pk with
       | Infinity -> false
@@ -27,7 +27,7 @@ module Ecdh =
       else
         create_keys()
 
-    (** Creates a session key from the other party's public key and the user's 
+    (* Creates a session key from the other party's public key and the user's 
       * secret key *)
 
     let create_session_key pk sk = 
@@ -37,7 +37,7 @@ module Ecdh =
       | Point(x, _) -> 
         Sha1.to_hex (Sha1.string (Z.to_string x))
 
-    (** Creates public key from secret key *)
+    (* Creates public key from secret key *)
     let pubkey_of_seckey sk =
       multiply_point get_g sk
   end;;
