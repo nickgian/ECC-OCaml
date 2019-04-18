@@ -1,0 +1,4 @@
+(library
+    (name ecc)
+    (public_name ecc)
+    (libraries zarith sha))
