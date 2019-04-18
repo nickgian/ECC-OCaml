@@ -1,11 +1,11 @@
 opam-version: "2.0"
-maintainer:  "thomas@gazagnaire.org"
-authors:     "Thomas Gazagnaire"
-homepage:    "https://github.com/mirage/alcotest/"
-dev-repo:    "git+https://github.com/mirage/alcotest.git"
-bug-reports: "https://github.com/mirage/alcotest/issues/"
-license:     "ISC"
-doc:         "https://mirage.github.io/alcotest/"
+maintainer:  "jose.pascoal@ubi.pt"
+authors:     "Nick Giannarakis and Zoe Paraskevopoulou"
+homepage:    "https://github.com/jcfpascoal10/ECC-OCaml"
+dev-repo:    "git+https://github.com/jcfpascoal10/ECC-OCaml.git"
+bug-reports: "https://github.com/nickgian/ECC-OCaml/issues"
+license:     "MIT"
+doc:         "https://github.com/jcfpascoal10/ECC-OCaml/tree/master/doc"
 
 build: [
   ["dune" "subst"] {pinned}
@@ -20,8 +20,11 @@ depends: [
   "sha"
 ]
 
-synopsis: ""
+synopsis: "Elliptic Curves Cryptography for OCaml"
 
 description: """
-
+Elliptic Curves Cryptography for OCaml. This library provides the basic 
+arithmetic operations in elliptic curves over finite prime fields, 
+as well as functions for Elliptic Curve digital signature algorithm and 
+Elliptic Curve Diffie-Hellman key exchange protocol.
 """
