@@ -1,6 +1,9 @@
 opam-version: "2.0"
+name: "ecc"
+version: "1.0.0"
 maintainer:  "jose.pascoal@ubi.pt"
-authors:     "Nick Giannarakis and Zoe Paraskevopoulou"
+authors:     "Nick Giannarakis <ng8@princeton.edu> 
+              Zoe Paraskevopoulou <zoe.paraskevopoulou@princeton.edu>"
 homepage:    "https://github.com/jcfpascoal10/ECC-OCaml"
 dev-repo:    "git+https://github.com/jcfpascoal10/ECC-OCaml.git"
 bug-reports: "https://github.com/nickgian/ECC-OCaml/issues"
