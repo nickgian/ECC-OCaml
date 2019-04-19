@@ -222,9 +222,8 @@ module type Curve = sig
   val multiply_point : point -> Z.t -> point
   (* Point multiplication is implemented using the 
      w-ary non-adjacent form (wNAF) algorithm *)
-  val multiscalar_mul : 
-    point -> Z.t list -> point list -> point 
-    (* inner product of a scalar vector and a point vector *)
+  val multiscalar_mul : point -> Z.t list -> point list -> point 
+  (* inner product of a scalar vector and a point vector *)
 
 end 
 
