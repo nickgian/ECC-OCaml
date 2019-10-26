@@ -1,6 +1,6 @@
 PACKAGES = zarith,sha
-MLFILES = EccPrimitives.ml Ecdsa.ml Ecdh.ml
-MLIFILES = EccPrimitives.mli Ecdsa.mli Ecdh.mli
+MLFILES = EccPrimitives.ml Secp256k1.ml Ecdsa.ml Ecdh.ml
+MLIFILES = EccPrimitives.mli Secp256k1.mli Ecdsa.mli Ecdh.mli
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLDEP = ocamldep
@@ -11,7 +11,7 @@ OBJS = $(MLFILES:.ml=.cmo)
 CMIS = $(MLIFILES:.mli=.cmi)
 CMAS = $(MLFILES:.ml=.cma)
 OPTOBJS = $(MLFILES:.ml=.cmx)
-INSTALL= META $(NAME).a $(NAME).cma $(NAME).cmxa $(CMIS) $(MLIS)
+INSTALL= META $(NAME).a $(NAME).cma $(NAME).cmxa $(CMIS) $(MLIS) $(OPTOBJS)
 
 default: depend $(NAME) 
 
@@ -32,6 +32,8 @@ $(NAME): $(OBJS) $(OPTOBJS)
 clean:
 	rm -f *.cm[ioxa] *~ .*~ *.o *.a #*#
 	rm -f *.cmxa
+	rm -rf _build
+	dune clean
 
 -include .depend
 
@@ -44,3 +46,11 @@ install: $(INSTALL)
 uninstall:
 	$(OCAMLFIND) remove $(NAME)
 
+test:
+	make
+	make uninstall
+	make install
+	cd demo && make build
+	cd demo && make test
+	make clean
+	make uninstall

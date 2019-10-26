@@ -1,7 +1,8 @@
+open EccPrimitives
+
 module Ecdsa :
-  functor (F : EccPrimitives.FIELD) ->
-    sig
-      val sign : string -> Z.t -> F.curve -> Z.t * Z.t
-      val verify :
-        string -> Z.t * Z.t -> EccPrimitives.point -> F.curve -> bool
-    end
+  functor (C : Curve) ->
+  sig
+    val sign : string -> Z.t -> Z.t * Z.t
+    val verify : string -> Z.t * Z.t -> point -> bool
+  end

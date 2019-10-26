@@ -1,17 +1,11 @@
-PACKAGES = ecc
-ECDSADEMO = ecdsademo.ml
-ECDHDEMO = ecdhdemo.ml
-OCAMLC = ocamlc
-OCAMLFIND = ocamlfind
+default: test
 
-default: ecdsa-demo ecdh-demo 
-
-ecdsa-demo:
-	$(OCAMLFIND) $(OCAMLC) -package $(PACKAGES) -linkpkg -o $@ $(ECDSADEMO)
-
-ecdh-demo:
-	$(OCAMLFIND) $(OCAMLC) -package $(PACKAGES) -linkpkg -o $@ $(ECDHDEMO)
-
+build:
+	dune build test.exe --profile release
+test:
+	dune runtest -f
+	make clean
 clean:
 	rm -f *.cm[iox] *~ .*~ *.o *.a #*#
-	rm -f ecdh-demo ecdsa-demo
+	rm -rf _build
+	dune clean
